@@ -1,0 +1,6 @@
+#!/bin/sh
+
+ terraform remote config -backend=s3 \
+ -backend-config="bucket=$(terraform output bucket)" \
+ -backend-config="key=$(terraform output aws_region)/vpc/terraform.tfstate" \
+ -backend-config="region=$(terraform output bucket_region)"
