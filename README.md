@@ -49,7 +49,14 @@ In order to share the output of this, without allowing others to necessarily ove
 There is a separate application `terraform_remote_s3bucket` than you can run make on.  It will
 give in it's out the bucket name, and the bucket region
 
+Then in the single-az-vpc you would run something like
+
+
+(TODO to make the `configure_remote_state` command to have args and enforce conventions)
 
 ```
  terraform remote config -backend=s3 -backend-config="bucket=terraform-versioned-state" -backend-config="key=eu-central-1/lab/terraform.tfstate" -backend-config="region=us-east-1"
 ```
+
+Please note that the region that a bucket in does not have any correlation with the location
+of the vpc you want to store.
