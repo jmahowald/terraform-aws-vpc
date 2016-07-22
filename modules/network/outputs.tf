@@ -30,13 +30,13 @@ output "bastion_ip" {
 }
 
 output "vpc_netmask" {
-	value = "${var.vpc_base_ip}.0.0 255.255.0.0"
+	value = "${cidrmask(var.vpc_cidr)}"
 }
 
 
 
 output "vpc_cidr" {
-	value = "${var.vpc_base_ip}.0.0/16"
+	value = "${var.vpc_cidr}"
 }
 
 

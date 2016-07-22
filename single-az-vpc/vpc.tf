@@ -4,8 +4,21 @@ variable "environment_name" {}
 variable "vpc_base_ip" {
   default = "10.60"
 }
+variable "vpc_cidr" {
+  default = "10.60.0.0/16"
+}
+variable "public_subnet_cidr" {
+  default = "10.60.0.0/24"
+}
+variable "private_subnet_cidr" {
+  default = "10.60.10.0/24"
+}
+
 variable "aws_region" {
   default = "us-east-1"
+}
+output "aws_region" {
+  value = "${var.aws_region}"
 }
 
 variable "aws_availability_zone" {
@@ -29,10 +42,6 @@ module "keys" {
   key_dir="${var.key_dir}"
 }
 
-module "remote_state" {
-  source = "../modules/terraform_remote_s3bucket"
-  bucket_name = "vpc-state"
-}
 module "centos" {
   #TODO this should be core os?
   source = "../modules/centos-amis"
@@ -40,9 +49,6 @@ module "centos" {
   region = "${var.aws_region}"
 }
 
-output "bucket" {
-  value = "${module.remote_state.name}"
-}
 
 output "bastion_ip" {
   value = "${module.network.bastion_ip}"
@@ -64,7 +70,9 @@ module "network" {
   environment_name = "${var.environment_name}"
   image_user = "${module.centos.image_user}"
   ami = "${module.centos.ami_id}"
-  vpc_base_ip = "${var.vpc_base_ip}"
+  vpc_cidr = "${var.vpc_cidr}"
+  private_subnet_cidr = "${var.private_subnet_cidr}"
+  public_subnet_cidr = "${var.public_subnet_cidr}"
 	aws_availability_zone = "${var.aws_availability_zone}"
 	aws_region = "${var.aws_region}"
   owner = "${var.owner}"

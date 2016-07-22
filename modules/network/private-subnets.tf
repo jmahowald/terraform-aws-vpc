@@ -2,11 +2,13 @@
 resource "aws_subnet" "private" {
   vpc_id            = "${aws_vpc.default.id}"
 
-  cidr_block = "${var.vpc_base_ip}.10.0/24"
+  cidr_block = "${var.private_subnet_cidr}"
   availability_zone = "${var.aws_availability_zone}"
   map_public_ip_on_launch = false
-  tags { 
-    Name = "private ${var.environment_name}" 
+  tags {
+    Name = "private ${var.environment_name}"
+    Owner = "${var.owner}"
+
   }
 }
 

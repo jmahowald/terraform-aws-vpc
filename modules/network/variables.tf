@@ -10,11 +10,9 @@ variable "aws_availability_zone" {
 }
 
 
-
-variable "vpc_base_ip" {
-	default = "10.72"
-}
-
+variable "vpc_cidr" {}
+variable "private_subnet_cidr" {}
+variable "public_subnet_cidr" {}
 
 variable "ami" {}
 variable "image_user" {}
