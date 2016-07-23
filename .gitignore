@@ -6,6 +6,7 @@
 *.crt
 *.ovpn*
 .terraform/
+*.ovpn
 keys/
 .chef/
 workspace/*
