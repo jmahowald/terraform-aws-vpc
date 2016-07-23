@@ -1,7 +1,7 @@
-/* NAT/VPN server */
+/* NAT/jump server */
 
 
-resource "aws_instance" "vpn" {
+resource "aws_instance" "jump" {
 
   ami = "${var.ami}"
   instance_type = "${var.instance_type}"
@@ -21,7 +21,7 @@ resource "aws_instance" "vpn" {
   #TODO look into why the heck I think I needed this flag
   source_dest_check = false
    tags = {
-    Name = "vpn-nat"
+    Name = "jump-nat"
     EnvironmentName = "${var.environment_name}"
     Owner = "${var.owner}"
   }
@@ -45,13 +45,13 @@ resource "aws_instance" "vpn" {
 }
 
 
-resource "aws_eip" "vpn" {
+resource "aws_eip" "jump" {
   vpc = true
-  instance = "${aws_instance.vpn.id}"
+  instance = "${aws_instance.jump.id}"
   # EIP associations have issues, so we need to setup here
   # HT: https://github.com/hashicorp/terraform/issues/6758#issuecomment-220229768
-  /*associate_with_private_ip = "${aws_instance.vpn.private_ip}"*/
-  instance = "${aws_instance.vpn.id}"
+  /*associate_with_private_ip = "${aws_instance.jump.private_ip}"*/
+  instance = "${aws_instance.jump.id}"
 
   lifecycle {
     create_before_destroy = "true"

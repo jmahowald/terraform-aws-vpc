@@ -24,9 +24,9 @@ output "web_security_group" {
 }
 
 output "bastion_ip" {
-  # TODO rename to vpn_ip but that may
+  # TODO rename to jump_ip but that may
   # change conventions too much? for now
-  value = "${aws_eip.vpn.public_ip}"
+  value = "${aws_eip.jump.public_ip}"
 }
 
 output "vpc_netmask" {

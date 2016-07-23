@@ -26,7 +26,7 @@ resource "aws_security_group" "default" {
 /* Security group for the nat server */
 resource "aws_security_group" "nat" {
   name = "${var.environment_name}-lab-nat"
-  description = "Security group for nat instances that allows SSH and VPN traffic from internet. Also allows outbound HTTP[S]"
+  description = "Security group for nat instances that allows SSH and jump traffic from internet. Also allows outbound HTTP[S]"
   vpc_id = "${aws_vpc.default.id}"
 
   ingress {
