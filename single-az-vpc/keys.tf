@@ -8,9 +8,12 @@ variable "key_name" {
 variable "key_dir" {
   default = "~/.keys"
 }
-provider "aws" {
-  region = "${var.aws_region}"
+
+output "key_file" {
+  value =   "${module.keys.key_path}"
 }
+
+
 module "keys" {
   source = "../modules/keys"
   key_name="${var.key_name}"

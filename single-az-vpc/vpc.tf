@@ -60,6 +60,10 @@ output "bastion_ip" {
   value = "${module.network.bastion_ip}"
 }
 
+output "bastion_user" {
+  value = "${module.network.bastion_user}"
+}
+
 output "security_group_ids" {
   value = "${module.network.security_group}"
 }

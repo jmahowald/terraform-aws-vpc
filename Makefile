@@ -4,15 +4,14 @@ all: plan apply
 export TF_VAR_aws_region=$(AWS_DEFAULT_REGION)
 export TF_VAR_FILE ?=$(shell pwd)/terraform.tfvars
 
+VPN:vpn
 
-
-
+VPC=single-az-vpc
 # this hacky section is to allow us to store terraform state for the
 # vpc in a bucket, but not have the project create the bucket istself
 # as the deletion of the bucket during a clean phase is disastrous.
 # This is most likely overengineered
 BUCKET_STATE=$(shell pwd)/terraform_remote_s3bucket/terraform.tfstate
-
 ifneq ($(wildcard $(BUCKET_STATE)),)
 
 export BUCKET_NAME=$(shell terraform output --state=$(BUCKET_STATE) name)
@@ -25,6 +24,8 @@ remote:
 endif
 
 
+export BUCKET_KEY=$(shell cd $(VPC); terraform output bucket_key)
+
 
 
 #
@@ -35,7 +36,7 @@ endif
 # endif
 
 vpc:
-	make -C single-az-vpc
+	make -C $(VPC)
 
 bucket:
 	make -C terraform_remote_s3bucket
@@ -45,3 +46,6 @@ plan:
 
 clean:
 	make -C single-az-vpc clean
+
+vpn:
+	make -C docker-openvpn

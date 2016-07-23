@@ -8,8 +8,12 @@ resource "aws_instance" "jump" {
   subnet_id = "${aws_subnet.public.id}"
   #This should release all the resources, like the associated EBS volume
   instance_initiated_shutdown_behavior = "terminate"
+
+  # Lazy Hack.  Users may want to add a VPN (but not everyone)
+  # For those that do however, it's nice to keep the volume around
+  # so we wouldn't need to recut vpn certs
   root_block_device {
-    delete_on_termination = true
+    delete_on_termination = false
   }
 
   # TODO allow for multiple security security_groups
