@@ -2,11 +2,18 @@ variable "bucket_name" {
   default = "terraform-versioned-state"
 }
 
+# Why might you have this off?
+# It is REALLY hard to delete buckets that have verisoning enabled
+# and from a test perspective it can be useful to start from total scratch
+variable "versioning_enabled" {
+  default = "true"
+}
+
 resource "aws_s3_bucket" "terraform_versioned_state" {
     bucket = "${var.bucket_name}"
     acl = "private"
     versioning {
-      enabled = true
+      enabled = ${var.versioning_enabled}
     }
 
     /**
