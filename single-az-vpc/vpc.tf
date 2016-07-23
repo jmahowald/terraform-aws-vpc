@@ -56,6 +56,9 @@ module "network" {
 }
 
 
+output "vpc_cidr" {
+  value = "${var.vpc_cidr}"
+}
 output "bastion_ip" {
   value = "${module.network.bastion_ip}"
 }
