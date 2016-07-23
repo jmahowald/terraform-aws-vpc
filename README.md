@@ -22,25 +22,19 @@ Create the new lab
 	make apply
 
 Destroy the lab
-
 	make clean
 
 See the dependencies
-
 	terraform graph | dot -Tpng > graph.png
-
 
 Due to how terraform evaluates items, we actually need to have the public key
 created before.  Due to laziness on my part, that means you must setup
 as environment variables with `TF_VAR_key_name` and `TF_VAR_key_dir`.  If you have
 direnv setup, you can use the included .envrc
 
-
 Terraform module to aid in the creation
 of ssh keys.  You must supply `key_dir` and
 `key_name` as environment variables with `TF_VAR_key_name` and `TF_VAR_key_dir`
-
-
 
 # Storing Config To share
 
