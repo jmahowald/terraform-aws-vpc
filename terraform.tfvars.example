@@ -1,0 +1,14 @@
+
+owner =  "Josh M"
+environment_name = "infratest"
+
+
+bucket_name = "Joshvpc"
+
+aws_region="us-east-1"
+aws_availability_zone="us-east-1c"
+
+# For the distributed repo you must have a master you
+# are pulling from.  As such you need to specify
+# a data bag for the environment repository structure
+# and the ssh key of the master
