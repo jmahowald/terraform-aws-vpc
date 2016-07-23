@@ -12,14 +12,13 @@ This project uses
 
  * terraform - [Install Terraform](https://www.terraform.io/intro/getting-started/install.html)
 
-
 See what the lab would look like
 
 	make plan
 
 Create the new lab
 
-	make apply
+	make vpc
 
 Destroy the lab
 	make clean
@@ -32,9 +31,6 @@ created before.  Due to laziness on my part, that means you must setup
 as environment variables with `TF_VAR_key_name` and `TF_VAR_key_dir`.  If you have
 direnv setup, you can use the included .envrc
 
-Terraform module to aid in the creation
-of ssh keys.  You must supply `key_dir` and
-`key_name` as environment variables with `TF_VAR_key_name` and `TF_VAR_key_dir`
 
 # Storing Config To share
 
@@ -43,14 +39,26 @@ In order to share the output of this, without allowing others to necessarily ove
 There is a separate application `terraform_remote_s3bucket` than you can run make on.  It will
 give in it's out the bucket name, and the bucket region
 
-Then in the single-az-vpc you would run something like
+you
+
+you can run `make remote` to store the remote state of the VPC
+after first calling `make bucket`
 
 
-(TODO to make the `configure_remote_state` command to have args and enforce conventions)
+# Layout philospophy
+As of now, IMO there isn't a good way to conditionally include lab "features".
+As such, there are two types of terraform "projects" included within
+module have most of the business logic within them, and top level "applications"
+can use those modules.  In order to share information, we are using the remote
+config in all 'apps' other than the vpc itself
 
-```
- terraform remote config -backend=s3 -backend-config="bucket=terraform-versioned-state" -backend-config="key=eu-central-1/lab/terraform.tfstate" -backend-config="region=us-east-1"
-```
 
-Please note that the region that a bucket in does not have any correlation with the location
-of the vpc you want to store.
+## Common issues
+In general I've found there are times that terraform doesn't clean up after istself as much
+as I'd like.  Therefore, some CLI scriptlets are needed if a resource isn't cleaned up
+
+
+For instance . . .
+
+if You have ` Error import KeyPair: InvalidKeyPair.Duplicate: The keypair 'deploy_key' already exists.`
+run `aws ec2 delete-key-pair --key-name deploy_key`
