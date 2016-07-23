@@ -1,6 +1,7 @@
 
 all: plan apply
 
+export TF_VAR_aws_region=$(AWS_DEFAULT_REGION)
 
 TF_VARS=terraform.tfvars
 
