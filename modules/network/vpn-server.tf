@@ -8,6 +8,9 @@ resource "aws_instance" "vpn" {
   subnet_id = "${aws_subnet.public.id}"
   #This should release all the resources, like the associated EBS volume
   instance_initiated_shutdown_behavior = "terminate"
+  root_block_device {
+    delete_on_termination = true
+  }
 
   # TODO allow for multiple security security_groups
   # but since they need to be joined/split for parameters
@@ -47,7 +50,7 @@ resource "aws_eip" "vpn" {
   instance = "${aws_instance.vpn.id}"
   # EIP associations have issues, so we need to setup here
   # HT: https://github.com/hashicorp/terraform/issues/6758#issuecomment-220229768
-  associate_with_private_ip = "${aws_instance.vpn.private_ip}"
+  /*associate_with_private_ip = "${aws_instance.vpn.private_ip}"*/
   instance = "${aws_instance.vpn.id}"
 
   lifecycle {
@@ -56,11 +59,6 @@ resource "aws_eip" "vpn" {
 
 }
 
-
-resource "aws_eip_association" "eip_assoc" {
-  instance_id = "${aws_instance.vpn.id}"
-  allocation_id = "${aws_eip.vpn.id}"
-}
 
 
 output "bastion_user" {
