@@ -12,6 +12,7 @@ resource "aws_subnet" "public" {
   depends_on = ["aws_internet_gateway.default"]
   tags {
     Name = "public ${var.environment_name}"
+    Owner = "${var.owner}"
   }
 }
 
