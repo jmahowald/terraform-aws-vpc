@@ -7,6 +7,16 @@ TF_VAR_ARGS ?=
 BUCKET_STATE ?=
 
 
+# There is a bug in terraform v 16
+# https://github.com/hashicorp/terraform/issues/6758#issuecomment-220229768
+# around the use of elastic ips that consistently makes it difficult
+# to destroy the environment
+# as such, we will error out if it's that version
+TERRAFORM_VERSION = $(shell terraform version)
+ifneq (,$(findstring 0.6.16, $(TERRAFORM_VERSION)))
+$(error "Can't use 6.16 terraform")
+endif
+
 #When we enable remote state on a terraform project,the
 #.tfstate file goles
 VPC_REMOTE_STATE_FILE=single-az-vpc/.terraform/terraform.tfstate
@@ -18,7 +28,7 @@ VPC_REMOTE_STATE_FILE=single-az-vpc/.terraform/terraform.tfstate
 
 
 plan: terraform.tfplan
-	
+
 terraform.tfplan: $(TF_FILES) .terraform
 	terraform plan -out terraform.tfplan $(TF_VAR_ARGS)
 
@@ -28,15 +38,14 @@ apply: terraform.tfplan
 
 clean: destroy
 	rm -rf .terraform
+	rm -rf terraform.tfstate
+	rm -rf terraform.tfplan
 
 destroy:
 	terraform plan -destroy -out terraform.tfplan $(TF_VAR_ARGS)
 	terraform destroy
 
 #TODO: Use a single interface to clean
-
-test:
-	echo $(TF_VAR_ARGS)
 
 $(VPC_REMOTE_STATE_FILE):
 
