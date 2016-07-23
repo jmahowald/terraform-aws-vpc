@@ -1,9 +1,10 @@
 
+# Used to identify resources
 variable "owner" {}
 variable "environment_name" {}
-variable "vpc_base_ip" {
-  default = "10.60"
-}
+
+
+# Addressing of subnets
 variable "vpc_cidr" {
   default = "10.60.0.0/16"
 }
@@ -14,6 +15,7 @@ variable "private_subnet_cidr" {
   default = "10.60.10.0/24"
 }
 
+# AWS specific variables
 variable "aws_region" {
   default = "us-east-1"
 }
@@ -24,42 +26,17 @@ output "aws_region" {
 variable "aws_availability_zone" {
   default = "us-east-1a"
 }
-
-variable "key_name" {
-  default = "deploykey"
+# If these variables are in a bucket, what is they key to use
+output "bucket_key" {
+  value = "${var.aws_region}/vpc/terraform.tfstate"
 }
 
-variable "key_dir" {
-  default = "~/.keys"
-}
-provider "aws" {
-  region = "${var.aws_region}"
-}
-
-module "keys" {
-  source = "../modules/keys"
-  key_name="${var.key_name}"
-  key_dir="${var.key_dir}"
-}
 
 module "centos" {
   #TODO this should be core os?
   source = "../modules/centos-amis"
   version = "7"
   region = "${var.aws_region}"
-}
-
-
-output "bastion_ip" {
-  value = "${module.network.bastion_ip}"
-}
-
-output "security_group_ids" {
-  value = "${module.network.security_group}"
-}
-
-output "private_subnet_id" {
-  value = "${module.network.private_subnet_id}"
 }
 
 
@@ -76,4 +53,17 @@ module "network" {
 	aws_availability_zone = "${var.aws_availability_zone}"
 	aws_region = "${var.aws_region}"
   owner = "${var.owner}"
+}
+
+
+output "bastion_ip" {
+  value = "${module.network.bastion_ip}"
+}
+
+output "security_group_ids" {
+  value = "${module.network.security_group}"
+}
+
+output "private_subnet_id" {
+  value = "${module.network.private_subnet_id}"
 }
