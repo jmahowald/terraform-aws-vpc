@@ -45,8 +45,6 @@ destroy:
 	terraform plan -destroy -out terraform.tfplan $(TF_VAR_ARGS)
 	terraform destroy
 
-#TODO: Use a single interface to clean
-
 $(VPC_REMOTE_STATE_FILE):
 
 
