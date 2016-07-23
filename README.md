@@ -53,6 +53,24 @@ can use those modules.  In order to share information, we are using the remote
 config in all 'apps' other than the vpc itself
 
 
+# Using the vpn
+
+Run `make vpn` to create a vpn endpoint on the jump host
+
+this will also result in the creation of scripts in the openvpn directory
+
+
+Run `openvpn/bin/ovpn-init` to provision the vpn initially (TODO add to make)
+This script will ask you three times for a password for the CA, and you will need
+that password later on if you create a client cert
+
+
+Run `openvpn/bin/ovpn-new-client <user>` to create a new openvpn profile for the user
+This will require the password you set for the CA when you initialized
+
+
+Run `openvpn/bin/ovpn-get-client-config <user>` to dowload an openvpn profile
+
 ## Common issues
 In general I've found there are times that terraform doesn't clean up after istself as much
 as I'd like.  Therefore, some CLI scriptlets are needed if a resource isn't cleaned up
