@@ -1,6 +1,3 @@
-
-
-
 variable "bucket_name" {
   default = "terraform-versioned-state"
 }
@@ -17,15 +14,7 @@ resource "terraform_remote_state" "lab" {
         # But the key by convention includes the region the lab is setup for"
         key = "${var.bucket_key}"
     }
-
-    
 }
-
-
-
-
-
-
 
 module "vpn" {
   source = "../modules/vpn"

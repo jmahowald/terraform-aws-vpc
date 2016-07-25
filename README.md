@@ -1,5 +1,3 @@
-
-
 This project attempts to ease the creation of a relatively secure lab environment in AWS.  It will provision a new VPC with private and public subnets (in a single availabilty zone only for now), a NAT instance for those to be able to get resources from the internet without needing elastic IPs, and an openvpn server to remove the need for a bastion host, while still preserving some basic security.
 
 This is heavily based off
@@ -23,13 +21,18 @@ Create the new lab
 Destroy the lab
 	make clean
 
-See the dependencies
-	terraform graph | dot -Tpng > graph.png
-
 Due to how terraform evaluates items, we actually need to have the public key
 created before.  Due to laziness on my part, that means you must setup
 as environment variables with `TF_VAR_key_name` and `TF_VAR_key_dir`.  If you have
-direnv setup, you can use the included .envrc
+direnv setup, you can use the included .envrc or just set it in your profile
+
+```
+export TF_VAR_key_name=deploy_key
+export TF_VAR_key_dir=~/.ssh`
+```
+
+These settings will make sure that a ~/.ssh/deploy_key.pem file
+is created and will be used to login to machines.
 
 
 # Storing Config To share
@@ -43,6 +46,17 @@ you
 
 you can run `make remote` to store the remote state of the VPC
 after first calling `make bucket`
+
+
+By convention, we prefer to share the vpc information via a terraform remote state
+That being said, it is useful to other terraform projects to bootstrap themselves
+with the details on that bucket state.
+
+
+Running `make bucket_vars` will result in a bucket.tfvars file being created
+that you could use in your other projects.  Please note that this file
+won't automatically get generated if your bucket information is changed
+so you'll have to delete the bucket.tfvars file if you want it regenerated
 
 
 # Layout philospophy
@@ -59,7 +73,6 @@ Run `make vpn` to create a vpn endpoint on the jump host
 
 this will also result in the creation of scripts in the openvpn directory
 
-
 Run `openvpn/bin/ovpn-init` to provision the vpn initially (TODO add to make)
 This script will ask you three times for a password for the CA, and you will need
 that password later on if you create a client cert
@@ -71,12 +84,5 @@ This will require the password you set for the CA when you initialized
 
 Run `openvpn/bin/ovpn-get-client-config <user>` to dowload an openvpn profile
 
-## Common issues
-In general I've found there are times that terraform doesn't clean up after istself as much
-as I'd like.  Therefore, some CLI scriptlets are needed if a resource isn't cleaned up
 
-
-For instance . . .
-
-if You have ` Error import KeyPair: InvalidKeyPair.Duplicate: The keypair 'deploy_key' already exists.`
-run `aws ec2 delete-key-pair --key-name deploy_key`
+# Sharing the state

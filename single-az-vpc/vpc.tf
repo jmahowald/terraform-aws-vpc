@@ -3,6 +3,9 @@
 variable "owner" {}
 variable "environment_name" {}
 
+output "environment_name" {
+  value = "${var.environment_name}"
+}
 
 # Addressing of subnets
 variable "vpc_cidr" {

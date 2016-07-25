@@ -12,6 +12,9 @@ variable "key_dir" {
 output "key_file" {
   value =   "${module.keys.key_path}"
 }
+output "key_name" {
+  value = "${var.key_name}"
+}
 
 
 module "keys" {
