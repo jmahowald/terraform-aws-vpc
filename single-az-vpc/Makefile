@@ -29,7 +29,7 @@ TF_FILES=$(wildcard *.tf)
 	terraform get --update
 	for i in $$(ls .terraform/modules/*/Makefile); do i=$$(dirname $$i); echo "Trying make in $$i"; make -C $$i; done
 
-plan:
+plan: $(TF_FILES) .terraform
 	terraform plan -out terraform.tfplan $(TF_VAR_ARGS)
 
 terraform.tfplan: $(TF_FILES) .terraform
