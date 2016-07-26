@@ -7,7 +7,6 @@
 *.ovpn*
 .terraform/
 *.ovpn
-keys/
 .chef/
 workspace/*
 berks-cookbooks/
