@@ -1,5 +1,5 @@
 
-all: apply
+all: plan apply
 
 
 # There is a bug in terraform v 16
