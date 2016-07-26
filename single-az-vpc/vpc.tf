@@ -34,14 +34,15 @@ output "bucket_key" {
   value = "${var.aws_region}/vpc/terraform.tfstate"
 }
 
-
+output "vpc_id" {
+  value = "${module.network.vpc_id}"
+}
 module "centos" {
   #TODO this should be core os?
   source = "../modules/centos-amis"
   version = "7"
   region = "${var.aws_region}"
 }
-
 
 module "network" {
 	source = "../modules/network"
@@ -57,7 +58,6 @@ module "network" {
 	aws_region = "${var.aws_region}"
   owner = "${var.owner}"
 }
-
 
 output "vpc_cidr" {
   value = "${var.vpc_cidr}"
