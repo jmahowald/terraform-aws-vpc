@@ -44,7 +44,7 @@ bucket_vars.tfvars: bucket remote
 # endif
 
 vpc:
-	make -C $(VPC)
+	make -C $(VPC) plan apply
 
 bucket:
 	make -C terraform_remote_s3bucket
