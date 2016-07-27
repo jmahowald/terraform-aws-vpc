@@ -47,6 +47,7 @@ module "vpc" {
   aws_availability_zone = "${var.aws_availability_zone}"
   source = "../single-az-vpc"
   key_name = "testingdeploy"
+  key_dir = ".keys/"
   environment_name = "${var.environment_name}"
   owner = "TEST"
   vpc_cidr = "${var.vpc_cidr}"
