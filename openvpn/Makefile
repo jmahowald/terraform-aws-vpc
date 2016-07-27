@@ -1,4 +1,4 @@
-all: apply
+all: plan apply
 
 
 export TF_VAR_bucket_region ?=$(BUCKET_REGION)
@@ -13,7 +13,7 @@ TF_FILES=$(wildcard *.tf)
 
 
 
-plan:
+plan: $(TF_FILES) .terraform
 	echo "Bucket key is $(BUCKET_KEY)+ $(TF_VAR_bucket_key) name r $(BUCKET_NAME)"
 	terraform plan -out terraform.tfplan $(TF_VAR_ARGS)
 
