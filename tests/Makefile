@@ -37,3 +37,6 @@ clean: destroy
 
 destroy:
 	terraform destroy $(TF_VAR_ARGS)
+
+test: apply
+	

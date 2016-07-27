@@ -55,6 +55,10 @@ plan:
 clean:
 	make -C single-az-vpc clean
 
+
+test:
+	make -C tests test
+	
 vpn:
 	make -C openvpn plan
 	make -C openvpn

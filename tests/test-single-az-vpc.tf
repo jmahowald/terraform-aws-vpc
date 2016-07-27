@@ -24,6 +24,24 @@ variable "private_subnet_cidr" {
   default = "192.168.2.0/24"
 }
 
+
+output "bastion_ip" {
+  value = "${module.vpc.bastion_ip}"
+}
+output "bastion_user" {
+  value = "${module.vpc.bastion_user}"
+}
+output "image_user" {
+  value = "${module.centos.image_user}"
+}
+output "test_ip" {
+  value = "${aws_instance.test.private_ip}"
+}
+output "key_file" {
+  value = "${module.vpc.key_file}"
+}
+
+
 module "vpc" {
   aws_region = "${var.aws_region}"
   aws_availability_zone = "${var.aws_availability_zone}"
@@ -59,16 +77,16 @@ resource "aws_instance" "test" {
     }
 
     connection {
-        user =  "core"
+        user =  "${module.centos.image_user}"
         key_file = "${module.vpc.key_file}"
         bastion_host = "${module.vpc.bastion_ip}"
-        bastion_user = "${module.centos.image_user}"
+        bastion_user = "${module.vpc.bastion_user}"
         bastion_private_key = "${file(module.vpc.key_file)}"
     }
 
     provisioner "remote-exec" {
         inline =  [
-            "echo hello world"
+            "echo 'hello world' > test.txt"
         ]
     }
 }
