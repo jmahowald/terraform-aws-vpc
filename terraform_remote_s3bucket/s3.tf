@@ -13,7 +13,7 @@ resource "aws_s3_bucket" "terraform_versioned_state" {
     bucket = "${var.bucket_name}"
     acl = "private"
     versioning {
-      enabled = ${var.versioning_enabled}
+      enabled = "${var.versioning_enabled}"
     }
 
     /**
