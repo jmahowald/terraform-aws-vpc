@@ -7,4 +7,5 @@ ssh -t -A  \
     -o StrictHostKeyChecking=no \
      $(terraform output bastion_user)@$(terraform output bastion_ip) ssh \
      -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
-     $(terraform output image_user)@$(terraform output test_ip) cat test.txt
+     $(terraform output image_user)@$(terraform output test_ip) cat test.txt \
+     grep 'helo world'

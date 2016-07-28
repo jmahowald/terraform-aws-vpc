@@ -38,4 +38,6 @@ clean: destroy
 destroy:
 	terraform destroy $(TF_VAR_ARGS)
 
-test: apply
+test: plan apply
+	./inttest.sh
+	$(MAKE) clean
