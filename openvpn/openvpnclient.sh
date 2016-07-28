@@ -1,5 +1,4 @@
 #!/bin/bash
-CONFIG=$1
 
 #sudo cp /path/to/vpn.crt /some/path/vpn-ca.crt
 sudo docker run --net host -it --cap-add=NET_ADMIN --device /dev/net/tun:/dev/net/tun \
