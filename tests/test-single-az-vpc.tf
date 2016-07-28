@@ -79,7 +79,7 @@ resource "aws_instance" "test" {
 
     connection {
         user =  "${module.centos.image_user}"
-        key_file = "${module.vpc.key_file}"
+        private_key = "${file(module.vpc.key_file)}"
         bastion_host = "${module.vpc.bastion_ip}"
         bastion_user = "${module.vpc.bastion_user}"
         bastion_private_key = "${file(module.vpc.key_file)}"
