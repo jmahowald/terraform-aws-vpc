@@ -5,7 +5,7 @@ all: plan apply
 # set a differnet region
 export AWS_DEFAULT_REGION = us-west-2
 export TF_VAR_key_name = testingdeploy
-export TF_VAR_key_dir = $(shell pwd).keys
+export TF_VAR_key_dir = $(shell pwd)/.keys
 export TF_VAR_FILE ?=$(shell pwd)/terraform.tfvars
 
 # If there is a terraform.tfvars
