@@ -18,15 +18,15 @@ resource "aws_security_group" "default" {
     self        = true
   }
 
-  tags { 
-    Name = "${var.environment_name}-default-sg" 
+  tags {
+    Name = "${var.environment_name}-default-sg"
   }
 }
 
 /* Security group for the nat server */
 resource "aws_security_group" "nat" {
   name = "${var.environment_name}-lab-nat"
-  description = "Security group for nat instances that allows SSH and jump traffic from internet. Also allows outbound HTTP[S]"
+  description = "Security group for nat instances that allows SSH and jump traffic from internet."
   vpc_id = "${aws_vpc.default.id}"
 
   ingress {
@@ -82,7 +82,7 @@ resource "aws_security_group" "web" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags { 
+  tags {
     Name = "${var.environment_name}-web-sg"
   }
 }

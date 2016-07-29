@@ -3,11 +3,9 @@
 resource "aws_subnet" "public" {
   vpc_id = "${var.vpc_id}"
   count = "${var.count}"
-  cidr_block = "${element(split(",",
-                                "${var.public_subnet_cidrs}"),count.index)}"
+  cidr_block = "${element(split(",","${var.public_subnet_cidrs}"))}"
   //In terraform 0.7 won't need to do this split nonsense and can pass around
-  availability_zone = "${element(split(",",
-                                "${module.az.list_all}"), count.index)}"
+  availability_zone = "${element(split(",","${module.az.list_all}", count.index)}"
   map_public_ip_on_launch = true
   tags {
     Name = "public ${var.environment_name} - ${count.index}"

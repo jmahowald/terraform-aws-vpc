@@ -47,7 +47,7 @@ vpc:
 	make -C $(VPC) plan apply
 
 bucket:
-	make -C terraform_remote_s3bucket
+	make -C terraform_remote_s3bucket plan apply
 
 plan:
 	make -C single-az-vpc plan
@@ -55,10 +55,8 @@ plan:
 clean:
 	make -C single-az-vpc clean
 
-
 test:
 	make -C tests test
-	
+
 vpn:
-	make -C openvpn plan
-	make -C openvpn
+	make -C openvpn plan apply

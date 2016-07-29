@@ -8,3 +8,12 @@ resource "aws_vpc" "default" {
     Owner = "${var.owner}"
   }
 }
+
+/* Internet gateway for the public subnet */
+resource "aws_internet_gateway" "default" {
+  vpc_id = "${var.vpc_id}"
+}
+
+module "azs" {
+  source = "availability_zones"
+}
