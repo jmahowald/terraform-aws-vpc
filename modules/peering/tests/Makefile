@@ -1,4 +1,5 @@
-PHONY: 
+PHONY:
+
 all: plan apply
 
 # Most of our other work is in us-west-1 or us-east-1. Let's explicitly
