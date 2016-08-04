@@ -43,6 +43,7 @@ clean: destroy
 	#rm -rf .terraform
 	#rm -rf terraform.tfstate
 	rm -rf terraform.tfplan
+	rm -rf .terraform
 
 destroy:
 	terraform destroy $(TF_VAR_ARGS)
