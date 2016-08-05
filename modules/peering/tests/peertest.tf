@@ -13,6 +13,31 @@ variable "aws_region" {
   default = "us-west-2"
 }
 
+output "bastion_ip_1" {
+  value = "${module.vpc_1.bastion_ip}"
+}
+output "bastion_ip_2" {
+  value = "${module.vpc_2.bastion_ip}"
+}
+output "bastion_user_1" {
+  value = "${module.vpc_1.bastion_user}"
+}
+output "bastion_user_2" {
+  value = "${module.vpc_2.bastion_user}"
+}
+output "image_user" {
+  value = "${module.centos.image_user}"
+}
+output "test_ip_1" {
+  value = "${aws_instance.test.private_ip}"
+}
+output "test_ip_2" {
+  value = "${aws_instance.test2.private_ip}"
+}
+output "key_file" {
+  value = "${module.keys.key_path}"
+}
+
 module "keys" {
   source = "../../keys"
   key_dir = ".keys/"
