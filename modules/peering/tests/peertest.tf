@@ -51,12 +51,20 @@ module "centos" {
   region = "${var.aws_region}"
 }
 
+variable "private_vpc1_subnet_cidr"  {
+  default = "10.40.2.0/24"
+}
+
+variable "private_vpc2_subnet_cidr" {
+  default = "192.168.2.0/24"
+}
+
 
 module "vpc_1" {
   source = "../../network"
   vpc_cidr = "10.40.0.0/16"
   public_subnet_cidr = "10.40.1.0/24"
-  private_subnet_cidr = "10.40.2.0/24"
+  private_subnet_cidr = "${var.private_vpc1_subnet_cidr}"
   aws_availability_zone = "${var.aws_availability_zone}"
   key_name = "${var.key_name}"
   ssh_keypath = "${module.keys.key_path}"
@@ -65,15 +73,14 @@ module "vpc_1" {
   ami = "${module.centos.ami_id}"
   aws_region = "${var.aws_region}"
   owner = "Tester"
-
-
 }
+
 
 module "vpc_2" {
   source = "../../network"
   vpc_cidr =  "192.168.0.0/16"
   public_subnet_cidr = "192.168.1.0/24"
-  private_subnet_cidr = "192.168.2.0/24"
+  private_subnet_cidr = "${var.private_vpc2_subnet_cidr}"
   key_name = "${var.key_name}"
   aws_availability_zone = "${var.aws_availability_zone}"
   ssh_keypath = "${module.keys.key_path}"
@@ -83,6 +90,64 @@ module "vpc_2" {
   aws_region = "${var.aws_region}"
   owner = "Tester"
 }
+
+
+
+
+
+resource "aws_security_group" "allow_all_from_vpc_2" {
+  name = "allow_all_vpc2"
+  description = "Allow all inbound traffic"
+  vpc_id = "${module.vpc_1.vpc_id}"
+  ingress {
+      from_port = 0
+      to_port = 65535
+      protocol = "tcp"
+      cidr_blocks = [
+        "${var.private_vpc2_subnet_cidr}"
+      ]
+  }
+  egress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = [
+      "${var.private_vpc2_subnet_cidr}"
+    ]
+  }
+  tags {
+    Name = "allow_all"
+  }
+}
+
+resource "aws_security_group" "allow_all_from_vpc_1" {
+  name = "allow_all_vpc1"
+  description = "Allow all inbound traffic"
+  vpc_id = "${module.vpc_2.vpc_id}"
+
+  ingress {
+      from_port = 0
+      to_port = 65535
+      protocol = "tcp"
+      cidr_blocks = [
+        "${var.private_vpc1_subnet_cidr}"
+      ]
+  }
+  egress {
+    from_port = 0
+    to_port = 65535
+    protocol = "tcp"
+    cidr_blocks = [
+      "${var.private_vpc1_subnet_cidr}"
+    ]
+
+  }
+  tags {
+    Name = "allow_all"
+  }
+}
+
+
 module "peering_1" {
     source = "../"
     peer_vpc_id = "${module.vpc_2.vpc_id}"
@@ -110,7 +175,8 @@ resource "aws_instance" "test" {
     instance_type = "t2.micro"
     key_name = "${module.keys.key_name}"
     count =  1
-    vpc_security_group_ids = [ "${module.vpc_1.security_group}" ]
+    vpc_security_group_ids = [ "${module.vpc_1.security_group}",
+      "${aws_security_group.allow_all_from_vpc_2.id}"]
     tags {
       Name = "testing-instance-${count.index}"
       Owner = "TEST"
@@ -128,7 +194,8 @@ resource "aws_instance" "test" {
 
     provisioner "remote-exec" {
         inline =  [
-            "echo 'hello world' > test.txt"
+            "echo 'hello world' > test.txt",
+            "yum install nc"
         ]
     }
 }
@@ -141,7 +208,8 @@ resource "aws_instance" "test2" {
     instance_type = "t2.micro"
     key_name = "${module.keys.key_name}"
     count =  1
-    vpc_security_group_ids = [ "${module.vpc_2.security_group}" ]
+    vpc_security_group_ids = [ "${module.vpc_2.security_group}",
+    "${aws_security_group.allow_all_from_vpc_1.id}" ]
     tags {
       Name = "testing-instance-${count.index}"
       Owner = "TEST"
@@ -159,7 +227,9 @@ resource "aws_instance" "test2" {
 
     provisioner "remote-exec" {
         inline =  [
-            "echo 'hello world' > test.txt"
+            "echo 'hello world' > test.txt",
+            "yum install nc"
+
         ]
     }
 }
