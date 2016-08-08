@@ -148,7 +148,7 @@ resource "aws_security_group" "allow_all_from_vpc_1" {
 }
 
 
-module "peering_1" {
+module "peering" {
     source = "../"
     peer_vpc_id = "${module.vpc_2.vpc_id}"
     peer_owner_id = "${var.owner_id}"
@@ -157,12 +157,16 @@ module "peering_1" {
 }
 
 
-module "peering_2" {
-    source = "../"
-    peer_vpc_id = "${module.vpc_1.vpc_id}"
-    peer_owner_id = "${var.owner_id}"
-    peer_cidr = "10.40.0.0/16"
+
+resource "aws_route_table" "peer_route" {
     vpc_id = "${module.vpc_2.vpc_id}"
+    route {
+        cidr_block = "10.40.0.0/16"
+        vpc_peering_connection_id = "${module.peering.peering_id}"
+    }
+    tags {
+        Name = "peer route"
+    }
 }
 
 
