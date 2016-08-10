@@ -22,6 +22,10 @@ resource "aws_route_table" "private" {
 }
 
 
+output "private_route_table_id" {
+    value = "${aws_route_table.private.id}"
+}
+
 
 /* Associate the routing table to public subnet */
 
