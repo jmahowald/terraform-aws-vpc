@@ -1,0 +1,6 @@
+
+
+
+node {
+    sh 'make test'
+}

@@ -1,0 +1,5 @@
+export TF_VAR_key_dir=`pwd`/.keys/
+export TF_VAR_owner_id=`aws ec2 describe-security-groups --group-names Default --query 'SecurityGroups[0].OwnerId' --output text`
+export TF_VAR_key_name=joshtestingdeploy
+export TF_VAR_aws_availability_zone=eu-central-1b
+export AWS_DEFAULT_REGION=eu-central-1

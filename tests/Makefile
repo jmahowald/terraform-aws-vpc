@@ -1,11 +1,11 @@
-
+PHONY:
 all: plan apply
 
 # Most of our other work is in us-west-1 or us-east-1. Let's explicitly
 # set a differnet region
 export AWS_DEFAULT_REGION = us-west-2
 export TF_VAR_key_name = testingdeploy
-export TF_VAR_key_dir = $(shell pwd).keys
+export TF_VAR_key_dir = $(shell pwd)/.keys
 export TF_VAR_FILE ?=$(shell pwd)/terraform.tfvars
 
 # If there is a terraform.tfvars
@@ -31,8 +31,8 @@ apply: terraform.tfplan
 	terraform apply terraform.tfplan
 
 clean: destroy
-	#rm -rf .terraform
-	#rm -rf terraform.tfstate
+	rm -rf .terraform
+	rm -rf terraform.tfstate
 	rm -rf terraform.tfplan
 
 destroy:

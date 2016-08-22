@@ -9,7 +9,7 @@ variable "provider" {
 }
 
 output "ami_id" {
-    value = "${lookup(var.centos_amis, format(\"%s-%s-%s\", var.version, var.provider, var.region))}"
+    value = "${lookup(var.centos_amis, format("%s-%s-%s", var.version, var.provider, var.region))}"
 }
 
 output "image_user" {

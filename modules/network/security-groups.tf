@@ -1,31 +1,9 @@
 /* Default security group */
-resource "aws_security_group" "default" {
-  name = "${var.environment_name}-default-sg"
-  description = "Default security group that allows inbound and outbound traffic from all instances in the VPC"
-  vpc_id = "${aws_vpc.default.id}"
 
-  ingress {
-    from_port   = "0"
-    to_port     = "0"
-    protocol    = "-1"
-    self        = true
-  }
-
-  egress {
-    from_port   = "0"
-    to_port     = "0"
-    protocol    = "-1"
-    self        = true
-  }
-
-  tags {
-    Name = "${var.environment_name}-default-sg"
-  }
-}
 
 /* Security group for the nat server */
 resource "aws_security_group" "nat" {
-  name = "${var.environment_name}-lab-nat"
+  name = "${var.environment}-lab-nat"
   description = "Security group for nat instances that allows SSH and jump traffic from internet."
   vpc_id = "${aws_vpc.default.id}"
 
@@ -49,7 +27,9 @@ resource "aws_security_group" "nat" {
     to_port   = 65535
     protocol  = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
-
+  }
+  tags {
+      Name = "${var.environment}-nat-sg"
   }
 
 }
@@ -83,6 +63,6 @@ resource "aws_security_group" "web" {
   }
 
   tags {
-    Name = "${var.environment_name}-web-sg"
+    Name = "${var.environment}-web-sg"
   }
 }
