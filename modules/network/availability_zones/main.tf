@@ -5,7 +5,6 @@ variable "vpc_id" {}
 variable "aws_region"{}
 variable "internet_gateway_id"{}
 variable "owner" {
-  default = "Unknown"
   # See https://github.com/hashicorp/terraform/issues/8146
   # for why this is set
 }

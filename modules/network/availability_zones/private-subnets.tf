@@ -19,7 +19,6 @@ resource "aws_subnet" "private" {
 
 /* Associate the routing table to private subnet */
 
-/**
 resource "aws_route_table_association" "private" {
   count = "${var.count}"
   subnet_id = "${element(aws_subnet.private.*.id, count.index)}"
@@ -42,14 +41,9 @@ resource "aws_route_table" "private" {
 
 
 output "private_route_table_ids" {
-    value = "[${aws_route_table.private.*.id}]"
+    value = ["${aws_route_table.private.*.id}"]
 }
 
 output "private_subnet_ids" {
-  value = "[${aws_subnet.private.*.id}]"
-}
-
-**/
-output "private_subnet_ids" {
-  value = "[]"
+  value = ["${aws_subnet.private.*.id}"]
 }

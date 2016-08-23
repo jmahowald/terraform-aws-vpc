@@ -2,7 +2,6 @@ variable "vpc_id"{}
 variable "environment_name"  {}
 
 output "security_group_ids" {
-  type = "list"
   value = ["${aws_security_group.default.id}"]
 }
 # TODO This probably is more open than it should be and could be extracted out

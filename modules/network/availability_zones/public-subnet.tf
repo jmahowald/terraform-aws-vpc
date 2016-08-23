@@ -1,6 +1,10 @@
 
 /* Public subnet */
 resource "aws_subnet" "public" {
+
+  lifecycle {
+    create_before_destroy = "true"
+  }
   vpc_id = "${var.vpc_id}"
   count = "${var.count}"
   cidr_block = "${element(var.public_subnet_cidrs,count.index)}"

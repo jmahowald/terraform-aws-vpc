@@ -12,9 +12,12 @@ variable "delete_jump_host_volume_on_termination" {
 }
 
 variable "ssh_keypath" {}
-/**
 //TODO we could easily make this not be in each AZ by having a separate count
 resource "aws_instance" "jump" {
+  lifecycle {
+    create_before_destroy = "true"
+  }
+  
   ami = "${var.ami}"
   count = "${var.count}"
   instance_type = "${var.instance_type}"
@@ -66,21 +69,15 @@ resource "aws_instance" "jump" {
 resource "aws_eip" "jump" {
   vpc = true
   count = "${var.count}"
-  instance = "${element("${aws_instance.jump.*.id}", "${count.index}")}"
+  instance = "${element("${aws_instance.jump.*.id}",count.index)}"
   # EIP associations have issues, so we need to setup here
   # HT: https://github.com/hashicorp/terraform/issues/6758#issuecomment-220229768
-  # associate_with_private_ip = "${aws_instance.jump.private_ip}"
+  associate_with_private_ip = "${element(aws_instance.jump.*.private_ip, count.index)}"
   lifecycle {
     create_before_destroy = "true"
   }
 }
-
+/*
 output "bastion_ips" {
   value = "[${aws_eip.jump.*.ip}]"
-}
-**/
-
-
-output "bastion_user" {
-  value = "${var.image_user}"
-}
+}*/
