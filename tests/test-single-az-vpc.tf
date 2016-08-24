@@ -10,11 +10,9 @@ variable "instance_type" {
 variable "environment_name" {
   default = "testing"
 }
-
-variable "owner_name" {
-  default = "Test User"
+variable "owner" {
+  defualt = "Test User"
 }
-
 
 
 
@@ -51,49 +49,23 @@ output "key_file" {
 }
 
 
-
-/* Define our vpc */
-resource "aws_vpc" "default" {
-  cidr_block = "${var.vpc_cidr}"
-  enable_dns_hostnames = true
-  enable_dns_support = true
-  tags {
-    Name = "${var.environment_name}-vpc"
-    Owner = "${var.owner_name}"
-  }
-}
-
-/* Internet gateway for the public subnet */
-resource "aws_internet_gateway" "default" {
-  vpc_id = "${aws_vpc.default.id}"
-}
-
-
-
 module "vpc" {
-
-  vpc_id = "${aws_vpc.default.id}"
-  internet_gateway_id  = "${aws_internet_gateway.default.id}"
-  ami = "${module.centos.ami_id}"
-  image_user = "${module.centos.image_user}"
   aws_region = "${var.aws_region}"
-  /*aws_availability_zone = "${var.aws_availability_zone}"*/
-  source = "../modules/network/availability_zones"
+  aws_availability_zone = "${var.aws_availability_zone}"
+  source = "../modules/network"
   key_name = "testingdeploy"
-  ssh_keypath = "${module.keys.key_path}"
-  environment = "${var.environment_name}"
-  owner =  "${var.owner_name}"
+  key_dir = ".keys/"
+  environment_name = "${var.environment_name}"
+  owner = "${var.owner}"
+  vpc_cidr = "${var.vpc_cidr}"
   count=1
   public_subnet_cidrs = "${var.public_subnet_cidrs}"
   private_subnet_cidrs = "${var.private_subnet_cidrs}"
-  jumphost_security_group_ids = "${module.security_groups.security_group_ids}"
 }
 
 module "security_groups" {
   environment_name = "${var.environment_name}"
   source = "../modules/security_groups/all_vpc"
-  vpc_id = "${aws_vpc.default.id}"
-
 }
 
 module "keys" {
@@ -103,7 +75,7 @@ module "keys" {
 }
 
 output vpc_id {
-  value = "${aws_vpc.default.id}"
+  value = "${module.vpc.vpc_id}"
 }
 
 module "centos" {
@@ -122,7 +94,7 @@ resource "aws_instance" "test" {
     vpc_security_group_ids = [ "${module.security_groups.security_group_ids}" ]
     tags {
       Name = "testing-instance"
-      Owner = "${var.owner_name}"
+      Owner = "${var.owner}"
       Environment = "testing"
     }
 

@@ -1,25 +1,13 @@
 /* NAT/jump server */
 
 
-variable "ami" {}
-variable "image_user" {}
-variable "instance_type" {
-  default = "t2.micro"
-}
-
-variable "delete_jump_host_volume_on_termination" {
-  default = true
-}
-
-variable "ssh_keypath" {}
-//TODO we could easily make this not be in each AZ by having a separate count
 resource "aws_instance" "jump" {
   lifecycle {
     create_before_destroy = "true"
   }
-  
+
   ami = "${var.ami}"
-  count = "${var.count}"
+  count = "${var.availability_zone_count}"
   instance_type = "${var.instance_type}"
   subnet_id = "${element("${aws_subnet.public.*.id}", count.index)}"
   #This should release all the resources, like the associated EBS volume
@@ -35,7 +23,7 @@ resource "aws_instance" "jump" {
   # TODO allow for multiple security security_groups
   # but since they need to be joined/split for parameters
   # right now, a single security group will suffice
-  vpc_security_group_ids = ["${split(",", "${var.jumphost_security_group_ids}")}"]
+  vpc_security_group_ids = ["${aws_security_group.public.id}"]
   key_name = "${var.key_name}"
   #TODO look into why the heck I think I needed this flag
   source_dest_check = false
@@ -68,7 +56,7 @@ resource "aws_instance" "jump" {
 
 resource "aws_eip" "jump" {
   vpc = true
-  count = "${var.count}"
+  count = "${var.availability_zone_count}"
   instance = "${element("${aws_instance.jump.*.id}",count.index)}"
   # EIP associations have issues, so we need to setup here
   # HT: https://github.com/hashicorp/terraform/issues/6758#issuecomment-220229768

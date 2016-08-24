@@ -1,26 +1,32 @@
 
-// Find them all with  aws ec2 describe-availability-zones --region <region name>
-variable aws_azs {
-  default = {
-    us-east-1 = "us-east-1a,us-east-1c,us-east-1d"
-    us-west-2 = "us-west-2a,us-west-2b,us-west-2c"
-    us-west-1 = "us-west-1a,us-west-1b,us-west-1c"
-  }
-}
+variable "environment" {}
+variable "owner" {}
 
+/** Network information **/
 variable "vpc_cidr" {}
 variable "public_subnet_cidrs" {
+	type = "list"
 }
 variable "private_subnet_cidrs" {
+	type = "list"
 }
-
-
-# In Terraform 0.7 we can replace that with this
-/*data "aws_availability_zones" "available" {}*/
-
-
-
-variable "count" {
+variable "availability_zone_count" {
   default = "1"
 }
 variable "aws_region" {}
+
+
+
+
+/** For creating the bastion host **/
+variable "ami" {}
+variable "image_user" {}
+variable "instance_type" {
+  default = "t2.micro"
+}
+variable "delete_jump_host_volume_on_termination" {
+  default = true
+}
+variable "key_name" {}
+variable "ssh_keypath" {}
+//TODO we could easily make this not be in each AZ by having a separate count
