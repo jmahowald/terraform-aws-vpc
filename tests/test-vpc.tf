@@ -74,7 +74,6 @@ module "vpc" {
   ami = "${module.centos.ami_id}"
   image_user ="${module.centos.image_user}"
   availability_zone_count = "2"
-
 }
 
 
@@ -84,16 +83,17 @@ module "keys" {
   key_name = "${var.key_name}"
 }
 
-output vpc_id {
-  value = "${module.vpc.vpc_id}"
-}
-
 module "centos" {
   #TODO this should go into separate module
   source = "../modules/centos-amis"
   version = "7"
   region = "${var.aws_region}"
 }
+
+output vpc_id {
+  value = "${module.vpc.vpc_id}"
+}
+
 
 resource "aws_instance" "test" {
     availability_zone = "${element(module.vpc.availabity_zones,count.index)}"
@@ -121,8 +121,4 @@ resource "aws_instance" "test" {
             "echo 'hello world' > test.txt"
         ]
     }
-}
-
-output "test_ip_3" {
-  value = "foo"
 }

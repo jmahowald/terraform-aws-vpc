@@ -3,7 +3,11 @@ all: plan apply
 
 # Most of our other work is in us-west-1 or us-east-1. Let's explicitly
 # set a differnet region
-export AWS_DEFAULT_REGION = us-west-2
+
+# You can override where these occur by setting TF_TESTING_REGION
+TF_TESTING_REGION ?= us-west-2
+export AWS_DEFAULT_REGION = $(TF_TESTING_REGION)
+export TF_VAR_AWS_REGION = $(TF_TESTING_REGION)
 export TF_VAR_key_name = testingdeploy
 export TF_VAR_key_dir = $(shell pwd)/.keys
 export TF_VAR_FILE ?=$(shell pwd)/terraform.tfvars
@@ -17,6 +21,7 @@ TF_VAR_ARGS=--var-file=$(TF_VAR_FILE)
 endif
 
 TF_FILES=$(wildcard *.tf)
+
 .terraform: $(TF_FILES)
 	terraform get --update
 	for i in $$(ls .terraform/modules/*/Makefile); do i=$$(dirname $$i); echo "Trying make in $$i"; make -C $$i; done
