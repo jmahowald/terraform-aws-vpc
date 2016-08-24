@@ -30,7 +30,8 @@ terraform.tfplan: $(TF_FILES) .terraform
 apply: terraform.tfplan
 	terraform apply terraform.tfplan
 
-clean: destroy
+clean: 
+	terraform destroy -force $(TF_VAR_ARGS)
 	rm -rf .terraform
 	rm -rf terraform.tfstate
 	rm -rf terraform.tfplan

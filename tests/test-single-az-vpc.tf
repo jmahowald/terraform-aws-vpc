@@ -7,14 +7,12 @@ variable "aws_availability_zone" {
 variable "instance_type" {
   default = "t2.micro"
 }
-variable "environment_name" {
+variable "environment" {
   default = "testing"
 }
 variable "owner" {
-  defualt = "Test User"
+  default = "Test User"
 }
-
-
 
 # Addressing of subnets
 variable "vpc_cidr" {
@@ -32,17 +30,18 @@ variable "key_name" {
 }
 
 
-output "bastion_ips" {
+output "bastion_ip" {
   value = "${module.vpc.bastion_ips}"
+}
+
+output "bastion_ip_1" {
+  value = "${element(module.vpc.bastion_ips, 0)}"
 }
 output "bastion_user" {
   value = "${module.vpc.bastion_user}"
 }
 output "image_user" {
   value = "${module.centos.image_user}"
-}
-output "test_ip" {
-  value = "${aws_instance.test.private_ip}"
 }
 output "key_file" {
   value = "${module.keys.key_path}"
@@ -51,22 +50,20 @@ output "key_file" {
 
 module "vpc" {
   aws_region = "${var.aws_region}"
-  aws_availability_zone = "${var.aws_availability_zone}"
   source = "../modules/network"
   key_name = "testingdeploy"
-  key_dir = ".keys/"
-  environment_name = "${var.environment_name}"
+  ssh_keypath = "${module.keys.key_path}"
+  environment = "${var.environment}"
   owner = "${var.owner}"
   vpc_cidr = "${var.vpc_cidr}"
-  count=1
+  availability_zone_count=1
   public_subnet_cidrs = "${var.public_subnet_cidrs}"
   private_subnet_cidrs = "${var.private_subnet_cidrs}"
+  environment = "${var.environment}"
+  ami = "${module.centos.ami_id}"
+  image_user ="${module.centos.image_user}"
 }
 
-module "security_groups" {
-  environment_name = "${var.environment_name}"
-  source = "../modules/security_groups/all_vpc"
-}
 
 module "keys" {
   source = "../modules/keys"
@@ -86,23 +83,23 @@ module "centos" {
 }
 
 resource "aws_instance" "test" {
-    availability_zone = "${var.aws_availability_zone}"
+    availability_zone = "${element(module.vpc.availabity_zones,count.index)}"
     ami = "${module.centos.ami_id}"
-    subnet_id = "${element(module.vpc.private_subnet_ids, 0)}"
+    subnet_id = "${element(module.vpc.private_subnet_ids, count.index)}"
     instance_type = "${var.instance_type}"
     key_name = "${module.keys.key_name}"
-    vpc_security_group_ids = [ "${module.security_groups.security_group_ids}" ]
+    count=1
+    vpc_security_group_ids = [ "${module.vpc.private_sg_id}" ]
     tags {
-      Name = "testing-instance"
+      Name = "testing-instance-${count.index}"
       Owner = "${var.owner}"
-      Environment = "testing"
+      Environment = "${var.environment}"
     }
-
     connection {
         user =  "${module.centos.image_user}"
         agent = false
         private_key = "${file(module.keys.key_path)}"
-        bastion_host = "${module.vpc.bastion_ips[0]}"
+        bastion_host = "${element(module.vpc.bastion_ips,count.index)}"
         bastion_user = "${module.vpc.bastion_user}"
     }
 
@@ -111,4 +108,7 @@ resource "aws_instance" "test" {
             "echo 'hello world' > test.txt"
         ]
     }
+}
+output "test_ip" {
+  value = "${aws_instance.test.private_ip}"
 }
