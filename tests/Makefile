@@ -24,13 +24,15 @@ TF_FILES=$(wildcard *.tf)
 plan: $(TF_FILES) .terraform
 	terraform plan -out terraform.tfplan $(TF_VAR_ARGS)
 
+refresh:
+	terraform refresh $(TF_VAR_ARGS)
 terraform.tfplan: $(TF_FILES) .terraform
 	$(MAKE) plan
 
 apply: terraform.tfplan
 	terraform apply terraform.tfplan
 
-clean: 
+clean:
 	terraform destroy -force $(TF_VAR_ARGS)
 	rm -rf .terraform
 	rm -rf terraform.tfstate

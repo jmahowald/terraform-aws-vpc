@@ -19,10 +19,10 @@ variable "vpc_cidr" {
   default = "192.168.0.0/16"
 }
 variable "public_subnet_cidrs" {
-  default = ["192.168.1.0/24"]
+  default = ["192.168.0.0/24", "192.168.1.0/24"]
 }
 variable "private_subnet_cidrs" {
-  default = ["192.168.2.0/24"]
+  default = ["192.168.10.0/24", "192.168.11.0/24"]
 }
 
 variable "key_name" {
@@ -34,9 +34,20 @@ output "bastion_ip" {
   value = "${module.vpc.bastion_ips}"
 }
 
-output "bastion_ip_1" {
+output "bastion_ip_0" {
   value = "${element(module.vpc.bastion_ips, 0)}"
 }
+output "bastion_ip_1" {
+  value = "${element(module.vpc.bastion_ips, 1)}"
+}
+
+output "test_ip_0" {
+  value = "${element(aws_instance.test.*.private_ip,0)}"
+}
+output "test_ip_1" {
+  value = "${element(aws_instance.test.*.private_ip,1)}"
+}
+
 output "bastion_user" {
   value = "${module.vpc.bastion_user}"
 }
@@ -62,6 +73,8 @@ module "vpc" {
   environment = "${var.environment}"
   ami = "${module.centos.ami_id}"
   image_user ="${module.centos.image_user}"
+  availability_zone_count = "2"
+
 }
 
 
@@ -88,7 +101,7 @@ resource "aws_instance" "test" {
     subnet_id = "${element(module.vpc.private_subnet_ids, count.index)}"
     instance_type = "${var.instance_type}"
     key_name = "${module.keys.key_name}"
-    count=1
+    count="${length(var.private_subnet_cidrs)}"
     vpc_security_group_ids = [ "${module.vpc.private_sg_id}" ]
     tags {
       Name = "testing-instance-${count.index}"
@@ -109,6 +122,7 @@ resource "aws_instance" "test" {
         ]
     }
 }
-output "test_ip" {
-  value = "${aws_instance.test.private_ip}"
+
+output "test_ip_3" {
+  value = "foo"
 }
