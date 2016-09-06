@@ -84,5 +84,23 @@ This will require the password you set for the CA when you initialized
 
 Run `openvpn/bin/ovpn-get-client-config <user>` to dowload an openvpn profile
 
+# Creating a VPC with a couple hosts and bastions to goo with them.
+
+git@git.genesyslab.com:infrastructure/terraform-aws-vpc.git
+        multiaz branch (I should merge to master)
+        if you jump into the workstation
+
+docker run -it --rm \   -v $(pwd):/workspace \   -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION \   -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \   -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \     genesysarch/cloud-workstation
+
+run that in that directory.
+cd tests
+make plan;make apply
+
+Okay the above did not quite work for me - so once the container is running
+ssh to it do to the gencloud/workstation
+run aws configure add the keys there, then cd tests and make plan; make apply.
+
+
+
 
 # Sharing the state
