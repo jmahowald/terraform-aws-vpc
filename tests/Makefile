@@ -7,7 +7,7 @@ all: plan apply
 # You can override where these occur by setting TF_TESTING_REGION
 TF_TESTING_REGION ?= us-west-2
 export AWS_DEFAULT_REGION = $(TF_TESTING_REGION)
-export TF_VAR_AWS_REGION = $(TF_TESTING_REGION)
+export TF_VAR_aws_region = $(TF_TESTING_REGION)
 export TF_VAR_key_name = testingdeploy
 export TF_VAR_key_dir = $(shell pwd)/.keys
 export TF_VAR_FILE ?=$(shell pwd)/terraform.tfvars
