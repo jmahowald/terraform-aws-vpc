@@ -1,27 +1,26 @@
 
 
 
+variable "host_address" {}
+variable "host_user" {}
+variable "private_key" {}
+variable "ssh_keypath"{}
+variable "vpn_cidr" {}
+
 variable "docker_preinstalled" {
   default = "false"
 }
 
-variable "host_address" {}
-variable "host_user" {}
-variable "ssh_keypath" {}
-variable "vpn_cidr" {}
 variable "remote_script_dir" {
   default = "/usr/local/bin"
 }
-
 variable "vpn_image" {
   default = "gosuri/openvpn"
 }
-
 # This module will output scripts.  Where should they go
 variable "script_folder" {
   default = "bin"
 }
-
 # Script to be put on remote end that will
 # start up the openvpn server (and ideally make it auto
 # restart on reboot)
@@ -44,7 +43,7 @@ resource "null_resource" "start_openvpn" {
   connection {
     user = "${var.host_user}"
     host = "${var.host_address}"
-    private_key = "${var.ssh_keypath}"
+    private_key = "${file(var.ssh_keypath)}"
   }
 
   provisioner "remote-exec" {
@@ -68,29 +67,12 @@ resource "null_resource" "start_openvpn" {
       "sudo mv /tmp/vpn_start.sh ${var.remote_script_dir}/vpn_start.sh",
       "sudo chmod 755 ${var.remote_script_dir}/vpn_start.sh",
       "sudo ${var.remote_script_dir}/vpn_start.sh",
-
-
-
 ]
   }
   provisioner "local-exec" {
     command = "echo not really creating the vpn yet"
   }
-//  depen ["template_file.ovpn_init"]
 }
-
-/*
-
-"sudo docker run --volumes-from ovpn-data --rm gosuri/openvpn ovpn_genconfig -p ${var.vpc_base_ip}.0.0/16 -u udp://${aws_eip.nat.public_ip}",
-"sudo iptables-save",*/
-#do"sudo docker run --volumes-from ovpn-data -e OVPN_PORT=8080 --rm gosuri/openvpn ovpn_genconfig -p 10.72.0.0/16 -u udp://54.183.79.121  "
-/*
-resource "template_file" "mytest" {
-  template = "Hello ${user}"
-  vars {
-    user = "foo"
-  }
-}*/
 
 
 resource "template_file" "ovpn_start" {
