@@ -37,7 +37,7 @@ resource "aws_instance" "jump" {
     #    https://github.com/hashicorp/terraform/issues/2563
     #    Shouldn't need to specify this but issue above
     agent = "false"
-    key_file = "${var.ssh_keypath}"
+    private_key = "${var.private_key}"
   }
 
 
