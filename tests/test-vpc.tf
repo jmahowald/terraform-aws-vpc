@@ -63,7 +63,7 @@ module "vpc" {
   aws_region = "${var.aws_region}"
   source = "../modules/network"
   key_name = "testingdeploy"
-  ssh_keypath = "${module.keys.key_path}"
+  private_key = "${file(module.keys.key_path)}"
   environment = "${var.environment}"
   owner = "${var.owner}"
   vpc_cidr = "${var.vpc_cidr}"
