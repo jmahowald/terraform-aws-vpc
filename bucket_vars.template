@@ -1,3 +1,0 @@
-bucket_name="${BUCKET_NAME}"
-bucket_region="${BUCKET_REGION}"
-bucket_key="${BUCKET_KEY}"
