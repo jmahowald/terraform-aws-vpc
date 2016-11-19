@@ -1,12 +1,5 @@
 #!/usr/bin/env groovy
 
-
-node {
-
-  // git credentialsId: 'gitlabkey', url: "git@git.genesyslab.com:infrastructure/terraform-aws-vpc.git"
-   checkout scm
- 
-  properties([[$class: 'GitLabConnectionProperty', gitLabConnection: 'gitlab']])
    def runWorkstation(args) {
       sh """
         docker run --rm -i \\
@@ -15,6 +8,14 @@ node {
         joshmahowald/cloud-workstation ${args}
         """
    }
+   
+node {
+
+  // git credentialsId: 'gitlabkey', url: "git@git.genesyslab.com:infrastructure/terraform-aws-vpc.git"
+   checkout scm
+ 
+  properties([[$class: 'GitLabConnectionProperty', gitLabConnection: 'gitlab']])
+
   
     wrap([$class: 'AnsiColorBuildWrapper'])    
      {
