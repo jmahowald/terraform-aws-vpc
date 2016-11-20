@@ -7,7 +7,7 @@ resource "aws_instance" "jump" {
   }
 
   ami = "${var.ami}"
-  count = "${var.availability_zone_count}"
+  count = "${var.basion_server_count}"
   instance_type = "${var.instance_type}"
   subnet_id = "${element("${aws_subnet.public.*.id}", count.index)}"
   #This should release all the resources, like the associated EBS volume

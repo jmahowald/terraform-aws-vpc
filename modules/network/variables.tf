@@ -13,6 +13,10 @@ variable "private_subnet_cidrs" {
 variable "availability_zone_count" {
   default = "1"
 }
+variable "bastion_server_count" {
+  default = "1"
+}
+
 variable "aws_region" {}
 
 
