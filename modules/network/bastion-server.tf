@@ -7,7 +7,7 @@ resource "aws_instance" "jump" {
   }
 
   ami = "${var.ami}"
-  count = "${var.basion_server_count}"
+  count = "${var.bastion_server_count}"
   instance_type = "${var.instance_type}"
   subnet_id = "${element("${aws_subnet.public.*.id}", count.index)}"
   #This should release all the resources, like the associated EBS volume
@@ -45,10 +45,7 @@ resource "aws_instance" "jump" {
   //and we still want jump hosts in each AZ (at least I think we do)
   provisioner "remote-exec" {
     inline = [
-    # I have no idea why these two are what enable NAT
-    # usage, but it works.  The question is will it survive a reboot .
-    "sudo iptables -t nat -A POSTROUTING -j MASQUERADE",
-    "echo 1 | sudo tee /proc/sys/net/ipv4/conf/all/forwarding > /dev/null",
+      "docker pull itzg/minecraft-server"
     ]
   }
 }
