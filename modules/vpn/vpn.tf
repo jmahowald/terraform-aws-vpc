@@ -3,7 +3,6 @@
 
 variable "host_address" {}
 variable "host_user" {}
-variable "private_key" {}
 variable "ssh_keypath"{}
 variable "vpn_cidr" {}
 
