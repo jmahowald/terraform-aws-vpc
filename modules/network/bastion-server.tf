@@ -55,7 +55,7 @@ resource "aws_instance" "jump" {
 
 resource "aws_eip" "jump" {
   vpc = true
-  count = "${var.availability_zone_count}"
+  count = "${var.bastion_server_count}"
   instance = "${element("${aws_instance.jump.*.id}",count.index)}"
   # EIP associations have issues, so we need to setup here
   # HT: https://github.com/hashicorp/terraform/issues/6758#issuecomment-220229768
