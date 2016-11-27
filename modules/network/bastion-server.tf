@@ -37,7 +37,7 @@ resource "aws_instance" "jump" {
     #    https://github.com/hashicorp/terraform/issues/2563
     #    Shouldn't need to specify this but issue above
     agent = "false"
-    private_key = "${var.private_key}"
+    private_key = "${file(var.ssh_keypath)}"
   }
 
 
@@ -45,8 +45,10 @@ resource "aws_instance" "jump" {
   //and we still want jump hosts in each AZ (at least I think we do)
   provisioner "remote-exec" {
     inline = [
-      "docker pull itzg/minecraft-server"
-    ]
+    # I have no idea why these two are what enable NAT
+    # usage, but it works.  The question is will it survive a reboot .
+    "sudo iptables -t nat -A POSTROUTING -j MASQUERADE",
+    "echo 1 | sudo tee /proc/sys/net/ipv4/conf/all/forwarding > /dev/null",    ]
   }
 }
 

@@ -63,7 +63,7 @@ module "vpc" {
   aws_region = "${var.aws_region}"
   source = "../modules/network"
   key_name = "testingdeploy"
-  private_key = "${file(module.keys.key_path)}"
+  ssh_keypath = "${module.keys.key_path}"
   environment = "${var.environment}"
   owner = "${var.owner}"
   vpc_cidr = "${var.vpc_cidr}"
@@ -74,6 +74,7 @@ module "vpc" {
   ami = "${module.centos.ami_id}"
   image_user ="${module.centos.image_user}"
   availability_zone_count = "2"
+  bastion_server_count = "2"
 }
 
 

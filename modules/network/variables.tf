@@ -32,6 +32,5 @@ variable "delete_jump_host_volume_on_termination" {
   default = true
 }
 variable "key_name" {}
-variable "private_key"{}
-/*variable "ssh_keypath" {}*/
+variable "ssh_keypath" {}
 //TODO we could easily make this not be in each AZ by having a separate count
