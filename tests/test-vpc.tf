@@ -52,7 +52,7 @@ output "bastion_user" {
   value = "${module.vpc.bastion_user}"
 }
 output "image_user" {
-  value = "${module.centos.image_user}"
+  value = "${module.coreos.image_user}"
 }
 output "key_file" {
   value = "${module.keys.key_path}"
@@ -71,8 +71,8 @@ module "vpc" {
   public_subnet_cidrs = "${var.public_subnet_cidrs}"
   private_subnet_cidrs = "${var.private_subnet_cidrs}"
   environment = "${var.environment}"
-  ami = "${module.centos.ami_id}"
-  image_user ="${module.centos.image_user}"
+  ami = "${module.amazon_ami.ami_id}"
+  image_user ="${module.amazon_ami.image_user}"
   availability_zone_count = "2"
   bastion_server_count = "2"
 }
@@ -84,11 +84,15 @@ module "keys" {
   key_name = "${var.key_name}"
 }
 
-module "centos" {
+module "amazon_ami" {
   #TODO this should go into separate module
-  source = "../modules/centos-amis"
-  version = "7"
-  region = "${var.aws_region}"
+  source = "../modules/amazon-amis"
+}
+
+
+module "coreos" {
+  #TODO this should go into separate module
+  source = "../modules/coreos-amis"
 }
 
 output vpc_id {
@@ -98,7 +102,7 @@ output vpc_id {
 
 resource "aws_instance" "test" {
     availability_zone = "${element(module.vpc.availabity_zones,count.index)}"
-    ami = "${module.centos.ami_id}"
+    ami = "${module.coreos.ami_id}"
     subnet_id = "${element(module.vpc.private_subnet_ids, count.index)}"
     instance_type = "${var.instance_type}"
     key_name = "${module.keys.key_name}"
@@ -110,7 +114,7 @@ resource "aws_instance" "test" {
       Environment = "${var.environment}"
     }
     connection {
-        user =  "${module.centos.image_user}"
+        user =  "${module.coreos.image_user}"
         agent = false
         private_key = "${file(module.keys.key_path)}"
         bastion_host = "${element(module.vpc.bastion_ips,count.index)}"

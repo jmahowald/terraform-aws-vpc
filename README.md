@@ -4,35 +4,14 @@ This is heavily based off
 of https://www.airpair.com/aws/posts/ntiered-aws-docker-terraform-guide
 
 
-# Setup
+# modules
 
-This project uses
-
- * terraform - [Install Terraform](https://www.terraform.io/intro/getting-started/install.html)
-
-See what the lab would look like
-
-	make plan
-
-Create the new lab
-
-	make vpc
-
-Destroy the lab
-	make clean
-
-Due to how terraform evaluates items, we actually need to have the public key
-created before.  Due to laziness on my part, that means you must setup
-as environment variables with `TF_VAR_key_name` and `TF_VAR_key_dir`.  If you have
-direnv setup, you can use the included .envrc or just set it in your profile
-
-```
-export TF_VAR_key_name=deploy_key
-export TF_VAR_key_dir=~/.ssh`
-```
-
-These settings will make sure that a ~/.ssh/deploy_key.pem file
-is created and will be used to login to machines.
+* network - Creates a VPC with a tunable number of availabilty zones.  You can also control how many bastion hosts are created
+* vpn - Given a host machine will install openvpn and create local scripts for provisioning profiles
+   * This is heavily based off of https://www.airpair.com/aws/posts/ntiered-aws-docker-terraform-guide
+* peering - Used to link two different VPCs in the same region together
+* amazon_amis - looks up amis to be used for amazon linux
+* coreos_amis - looks up amis to be used for coreos
 
 
 # Storing Config To share
@@ -85,10 +64,6 @@ This will require the password you set for the CA when you initialized
 Run `openvpn/bin/ovpn-get-client-config <user>` to dowload an openvpn profile
 
 # Creating a VPC with a couple hosts and bastions to goo with them.
-
-git@git.genesyslab.com:infrastructure/terraform-aws-vpc.git
-        multiaz branch (I should merge to master)
-        if you jump into the workstation
 
 docker run -it --rm \   -v $(pwd):/workspace \   -e AWS_DEFAULT_REGION=$AWS_DEFAULT_REGION \   -e AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY \   -e AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID \     genesysarch/cloud-workstation
 
