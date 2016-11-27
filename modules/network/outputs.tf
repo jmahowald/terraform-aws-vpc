@@ -13,6 +13,9 @@ output "private_sg_id" {
 output "private_subnet_ids" {
   value = ["${aws_subnet.private.*.id}"]
 }
+output "vpc_cidr" {
+  value = "${var.vpc_cidr}"
+}
 
 
 output "bastion_ips" {
