@@ -1,11 +1,14 @@
 
 
-variable "security_group_ids" {
-    type = "list"
+variable "inbound_security_group_id" {
+  desc = "This security group (like a private subnet) will be allowed access"
 }
+
 variable "subnet_ids" {
   type = "list"
 }
+
+variable "vpc_id" {}
 
 output "db_subnet_group_name" {
     value = "${aws_db_subnet_group.default.name}"
@@ -15,26 +18,24 @@ output "security_group_id" {
 }
 
 resource "aws_db_subnet_group" "default" {
-    name = "d_subnet"
+    name = "rds-subnet"
     description = "Database VPC private subnets"
     subnet_ids = [ "${var.subnet_ids}"]
-
 }
 
 # Security group
 resource "aws_security_group" "db" {
-    name = "d-SG"
+    name = "rds-incoming"
     description = "Allow servers to access database server."
     vpc_id = "${var.vpc_id}"
+}
 
-    # Allow incoming trafic
-    ingress {
-        from_port = 3306
-        to_port = 3306
-        protocol = "tcp"
-        security_groups = "${var.inbound_security_group_ids}" 
-    }
-    lifecycle {
-        create_before_destroy = true
-    }
+
+resource "aws_security_group_rule" "privatesubnet" {
+  type = "ingress"
+  from_port = 3306
+  to_port = 3306
+  protocol = "tcp"
+  security_group_id = "${aws_security_group.db.id}"
+  source_security_group_id = "${var.inbound_security_group_id}"
 }
