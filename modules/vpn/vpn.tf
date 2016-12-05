@@ -20,6 +20,9 @@ variable "vpn_image" {
 variable "script_folder" {
   default = "bin"
 }
+
+
+variable "security_group_id" {}
 # Script to be put on remote end that will
 # start up the openvpn server (and ideally make it auto
 # restart on reboot)
@@ -125,6 +128,15 @@ EOP_SHELL
 chmod 755 ${var.script_folder}/ovpn-new-client
 EOC_TERRAFORM
   }
+}
+
+resource "aws_security_group_rule" "vpn_in" {
+  type = "ingress"
+  security_group_id = "${var.security_group_id}"
+  from_port = 1194
+  to_port   = 1194
+  protocol  = "udp"
+  cidr_blocks = ["0.0.0.0/0"]
 }
 
 
