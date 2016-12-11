@@ -94,14 +94,13 @@ resource "aws_security_group_rule" "to_nat" {
   protocol  = "tcp"
   source_security_group_id = "${aws_security_group.public.id}"
 }
-
-
+mak
 resource "aws_security_group_rule" "internal_in" {
   security_group_id = "${aws_security_group.private.id}"
   type = "ingress"
   from_port = 0
   to_port   = 65535
-  protocol  = "tcp"
+  protocol  = "all"
   source_security_group_id = "${aws_security_group.private.id}"
 }
 
@@ -110,6 +109,6 @@ resource "aws_security_group_rule" "internal_out" {
   type = "egress"
   from_port = 0
   to_port   = 65535
-  protocol  = "tcp"
+  protocol  = "all"
   source_security_group_id = "${aws_security_group.private.id}"
 }
