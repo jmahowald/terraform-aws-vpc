@@ -30,7 +30,7 @@ INSTANCE_DNS_NAMES=$(aws --region ${region} ec2 describe-instances --instance-id
 INSTANCE_IP=$(curl -s http://169.254.169.254/latest/meta-data/local-ipv4)
 
 docker run -d --net=host -h $INSTANCE_ID -v /var/consul:/consul/data \
-   -e 'CONSUL_LOCAL_CONFIG={"skip_leave_on_interrupt" : true,"addresses":{"http": "$INSTANCE_IP"}}' -P \
+   -e "CONSUL_LOCAL_CONFIG={\"skip_leave_on_interrupt\" : true,\"addresses\":{\"http\": \"$INSTANCE_IP\"}}" -P \
    --restart always --name consul -p 8500:8500 \
    consul agent -server -bind $INSTANCE_IP \
      -bootstrap-expect ${num_servers} -retry-join $INSTANCE_DNS_NAMES -ui

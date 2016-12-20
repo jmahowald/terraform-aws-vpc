@@ -79,33 +79,6 @@ data "aws_ami" "amazon" {
 
 
 
-// # We have a bootstrap
-// resource "aws_instance" "consul_server" {
-//     // name="consul-server-${count.index}"
-//     ami = "${data.aws_ami.coreos.image_id}"
-//     subnet_id = "${element(var.subnet_ids, count.index % length(var.subnet_ids))}"
-//     instance_type = "${var.instance_type}"
-//     key_name = "${var.key_name}"
-//     # TODO
-//     # Have had lots of issues with this as a variable
-//     count = "${var.count}"
-//     vpc_security_group_ids = ["${split(",",var.security_group_ids)}"]
-//     tags = "${merge(map("Name","consul-${count.index}"),var.tags)}"
-//     connection {
-//         user =  "core"
-//         private_key = "${file(var.ssh_keypath)}"
-//     }
-//     provisioner "remote-exec" {
-//         inline =  [
-//             "docker pull consul",
-//             "sudo mkdir -p ${var.consul_install_dir}",
-//             "sudo chown core ${var.consul_install_dir}"
-//         ]
-//     }
-// }
-
-
-
 
 
 
@@ -113,9 +86,7 @@ data "aws_ami" "amazon" {
 resource "aws_launch_configuration" "cluster_launch_conf" {
 
     name = "consul-launch"
-
     image_id = "${data.aws_ami.amazon.image_id}"
-
     # No public ip when instances are placed in private subnets. See notes
     # about creating an ELB to proxy public traffic into the cluster.
     associate_public_ip_address = false
@@ -144,13 +115,7 @@ resource "aws_alb" "consul" {
   subnets         = ["${var.subnet_ids}"]
 
   enable_deletion_protection = false
-
-  // access_logs {
-  //   bucket = "${aws_s3_bucket.alb_logs.bucket}"
-  //   prefix = "test-alb"
-  // }
-
-    tags = "${merge(map("Name","consul"),var.tags)}"
+  tags = "${merge(map("Name","consul"),var.tags)}"
 
 }
 
@@ -159,7 +124,9 @@ resource "aws_alb" "consul" {
 data "aws_subnet" "selected" {
   id = "${element(var.subnet_ids,0)}"
 }
-
+data "aws_vpc" "vpc" {
+    id = "${data.aws_subnet.selected.vpc_id}"
+}
 
 
 resource "aws_alb_target_group" "consul_server_http" {
@@ -248,9 +215,6 @@ resource "aws_cloudwatch_metric_alarm" "consul_members" {
 }
 
 
-data "aws_vpc" "vpc" {
-    id = "${data.aws_subnet.selected.vpc_id}"
-}
 
 resource "aws_security_group_rule" "consul_http_ingress" {
 
