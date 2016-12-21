@@ -1,4 +1,6 @@
 variable "key_name" {}
+variable "zone_id" {}
+variable "consul_fqdn" {}
 
 # TODO this should be multiple and we should be using a map to spread out the
 # masters
@@ -18,6 +20,10 @@ variable "security_group_ids" {
 
 variable "consul_install_dir" {
     default="/var/consul"
+}
+
+variable "alarm_actions" {
+  type = "list"
 }
 
 /**
@@ -119,6 +125,16 @@ resource "aws_alb" "consul" {
 
 }
 
+resource "aws_route53_record" "consul" {
+  zone_id = "${var.zone_id}"
+  name = "${var.consul_fqdn}"
+  type = "A"
+  alias {
+    name = "${aws_alb.consul.dns_name}"
+    zone_id = "${aws_alb.consul.zone_id}"
+    evaluate_target_health= true
+  }
+}
 
 //Pick up the vpc id from the first subnet id
 data "aws_subnet" "selected" {
@@ -225,4 +241,8 @@ resource "aws_security_group_rule" "consul_http_ingress" {
     protocol = "tcp"
     cidr_blocks = ["${data.aws_vpc.vpc.cidr_block}"]
 
+}
+
+output "consul_fqdn" {
+  value = "${var.consul_fqdn}"
 }
