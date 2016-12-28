@@ -94,7 +94,8 @@ resource "aws_security_group_rule" "to_nat" {
   protocol  = "tcp"
   source_security_group_id = "${aws_security_group.public.id}"
 }
-mak
+
+
 resource "aws_security_group_rule" "internal_in" {
   security_group_id = "${aws_security_group.private.id}"
   type = "ingress"

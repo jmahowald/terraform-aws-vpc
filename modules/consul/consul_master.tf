@@ -23,6 +23,7 @@ variable "consul_install_dir" {
 }
 
 variable "alarm_actions" {
+  default = []
   type = "list"
 }
 
@@ -145,15 +146,6 @@ data "aws_vpc" "vpc" {
 }
 
 
-resource "aws_alb_target_group" "consul_server_http" {
-  name     = "tf-example-alb-tg"
-  port     = 8500
-  protocol = "HTTP"
-  vpc_id   = "${data.aws_subnet.selected.vpc_id}"
-  health_check {
-    path = "/v1/health/state/critical"
-  }
-}
 
 
 resource "aws_alb_listener" "front_end" {
@@ -165,6 +157,19 @@ resource "aws_alb_listener" "front_end" {
      type = "forward"
    }
 }
+
+
+resource "aws_alb_target_group" "consul_server_http" {
+  name     = "tf-consul-alb-http"
+  port     = 8500
+  protocol = "HTTP"
+  vpc_id   = "${data.aws_subnet.selected.vpc_id}"
+  health_check {
+    path = "/v1/health/state/critical"
+  }
+}
+
+
 
 
 
@@ -227,7 +232,7 @@ resource "aws_cloudwatch_metric_alarm" "consul_members" {
         AutoScalingGroupName = "${aws_autoscaling_group.consul_asg.name}"
     }
     alarm_description = "This measures the number of consul servers active"
-    // alarm_actions = ["${aws_autoscaling_policy.bat.arn}"]
+    alarm_actions = ["${var.alarm_actions}"]
 }
 
 
@@ -242,6 +247,30 @@ resource "aws_security_group_rule" "consul_http_ingress" {
     cidr_blocks = ["${data.aws_vpc.vpc.cidr_block}"]
 
 }
+
+
+resource "aws_security_group_rule" "consul_agent_ingress" {
+    security_group_id = "${var.security_group_ids}"
+    type = "ingress"
+    from_port = 8300
+    to_port = 8300
+    protocol = "tcp"
+    cidr_blocks = ["${data.aws_vpc.vpc.cidr_block}"]
+}
+
+
+resource "aws_security_group_rule" "consul_serf" {
+    security_group_id = "${var.security_group_ids}"
+    type = "ingress"
+    from_port = 8301
+    to_port = 8301
+    protocol = "all"
+    cidr_blocks = ["${data.aws_vpc.vpc.cidr_block}"]
+}
+
+
+
+
 
 output "consul_fqdn" {
   value = "${var.consul_fqdn}"
