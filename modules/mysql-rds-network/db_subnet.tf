@@ -1,7 +1,7 @@
 
 
 variable "inbound_security_group_id" {
-  desc = "This security group (like a private subnet) will be allowed access"
+  description = "This security group (like a private subnet) will be allowed access"
 }
 
 variable "subnet_ids" {

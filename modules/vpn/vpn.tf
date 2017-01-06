@@ -6,19 +6,30 @@ variable "host_user" {}
 variable "ssh_keypath"{}
 variable "vpn_cidr" {}
 
+
+variable "ca_common_name" {
+  default = "myorg"
+}
+
 variable "docker_preinstalled" {
-  default = "false"
+  default = "1"
+  description = "Set to empty string to hve docker be installed"
 }
 
 variable "remote_script_dir" {
-  default = "/usr/local/bin"
+  default = "/var/openvpn"
 }
 variable "vpn_image" {
-  default = "gosuri/openvpn"
+  default = "kylemanna/openvpn"
 }
 # This module will output scripts.  Where should they go
 variable "script_folder" {
   default = "bin"
+}
+
+variable "nopassword" {
+  default = ""
+  description = "Set this to anything if you want to disable passwords for the ca cert for openvpn"
 }
 
 
@@ -50,35 +61,55 @@ resource "null_resource" "start_openvpn" {
 
   provisioner "remote-exec" {
     inline=[
-
-      # TODO make this optional based of
-      # docker preinstalled variable
-       "curl -sSL https://get.docker.com/ | sudo sh",
-      # Well this pretty much only works on centos7
-      "sudo systemctl enable docker.service",
-      "sudo service docker start",
-
-      # TODO make this always be running
-      "sudo docker run --name ovpn-data -v /etc/openvpn busybox",
-      "sudo docker run --volumes-from ovpn-data --rm ${var.vpn_image} ovpn_genconfig -p ${var.vpn_cidr} -u udp://${var.host_address}",
-
-
-      "cat << 'VPN_START_SCRIPT' > /tmp/vpn_start.sh",
-      "${template_file.ovpn_start.rendered}",
+      "sudo mkdir -p ${var.remote_script_dir}",
+      "sudo chown ${var.host_user} ${var.remote_script_dir}",
+      "cat << 'VPN_START_SCRIPT' >  ${var.remote_script_dir}/vpn_start.sh",
+      "${data.template_file.ovpn_start.rendered}",
       "VPN_START_SCRIPT",
-      "sudo mv /tmp/vpn_start.sh ${var.remote_script_dir}/vpn_start.sh",
       "sudo chmod 755 ${var.remote_script_dir}/vpn_start.sh",
-      "sudo ${var.remote_script_dir}/vpn_start.sh",
+      "sudo  DOCKER_INSTALLED=${var.docker_preinstalled} ${var.remote_script_dir}/vpn_start.sh ",      
 ]
   }
-  provisioner "local-exec" {
-    command = "echo not really creating the vpn yet"
+
+   provisioner "local-exec" {
+    command = <<EOC_TERRAFORM
+mkdir -p ${var.script_folder}
+
+(
+cat <<'EOP_SHELL'
+${data.template_file.ovpn-new-client.rendered}
+EOP_SHELL
+) > ${var.script_folder}/ovpn-new-client
+chmod 755 ${var.script_folder}/ovpn-new-client
+EOC_TERRAFORM
   }
+
+
+ provisioner "local-exec" {
+    command = <<EOC_TERRAFORM
+mkdir -p ${var.script_folder}
+
+(
+cat <<'EOP_SHELL'
+${data.template_file.ovpn_init.rendered}
+EOP_SHELL
+) > ${var.script_folder}/ovpn-init
+chmod 755 ${var.script_folder}/ovpn-init
+EOC_TERRAFORM
+  }
+
 }
 
 
-resource "template_file" "ovpn_start" {
+
+
+data "template_file" "ovpn_start" {
   template ="${file("${path.module}/vpn_start.sh")}"
+  vars {
+    vpn_image = "${var.vpn_image}"
+    vpn_cidr = "${var.vpn_cidr}"
+    host_address = "${var.host_address}"
+  }
 }
 
 /**
@@ -86,49 +117,19 @@ resource "template_file" "ovpn_start" {
  *  scripts locally.  There is a good chance this can be done more
  *  cleanly, but . . . (it works/lazy)
  */
-resource "template_file" "ovpn_init" {
+data "template_file" "ovpn_init" {
   template = "${file("${path.module}/ovpn-init.tpl")}"
   vars {
-    host = "${var.host_address}"
+    vpn_image = "${var.vpn_image}"
     key_path = "${var.ssh_keypath}"
     user = "${var.host_user}"
-    init_command = "sudo docker run --volumes-from ovpn-data --rm -it ${var.vpn_image} ovpn_initpki"
-  }
-   provisioner "local-exec" {
-    command = <<EOC_TERRAFORM
-mkdir -p ${var.script_folder}
+    ca_common_name = "${var.ca_common_name}"
+    host_address = "${var.host_address}"
 
-(
-cat <<'EOP_SHELL'
-${self.rendered}
-EOP_SHELL
-) > ${var.script_folder}/ovpn-init
-chmod 755 ${var.script_folder}/ovpn-init
-
-EOC_TERRAFORM
   }
+  
 }
 
-resource "template_file" "ovpn-new-client" {
-  template = "${file("${path.module}/ovpn-new-client.tpl")}"
-  vars {
-    host = "${var.host_address}"
-    key_path = "${var.ssh_keypath}"
-    user = "${var.host_user}"
-  }
-   provisioner "local-exec" {
-    command = <<EOC_TERRAFORM
-mkdir -p ${var.script_folder}
-
-(
-cat <<'EOP_SHELL'
-${self.rendered}
-EOP_SHELL
-) > ${var.script_folder}/ovpn-new-client
-chmod 755 ${var.script_folder}/ovpn-new-client
-EOC_TERRAFORM
-  }
-}
 
 resource "aws_security_group_rule" "vpn_in" {
   type = "ingress"
@@ -140,39 +141,16 @@ resource "aws_security_group_rule" "vpn_in" {
 }
 
 
-resource "template_file" "ovpn-get-client-config" {
-  template = "${file("${path.module}/ovpn-get-client-config.tpl")}"
+data "template_file" "ovpn-new-client" {
+  template = "${file("${path.module}/ovpn-new-client.tpl")}"
   vars {
     host = "${var.host_address}"
     key_path = "${var.ssh_keypath}"
     user = "${var.host_user}"
     vpc_netmask = "${cidrhost("${var.vpn_cidr}", 1)} ${cidrnetmask("${var.vpn_cidr}")}"
+    vpn_image="${var.vpn_image}"
   }
-   provisioner "local-exec" {
-    command = <<EOC_TERRAFORM
-mkdir -p ${var.script_folder}
-
-(
-cat <<'EOP_SHELL'
-${self.rendered}
-EOP_SHELL
-) > ${var.script_folder}/ovpn-get-client-config
-chmod 755 ${var.script_folder}/ovpn-get-client-config
-EOC_TERRAFORM
-  }
+  
 }
 
 
-
-/*
-
-resource "template_file"  "ovpn_start" {
-  template = "${file("${path.module}/ovpn-init.tpl")}"
-  vars {
-    host = "${var.host_address}"
-    key_path = "${var.ssh_keypath}"
-    user = "${var.host_user}"
-    init_command = "sudo docker run --volumes-from ovpn-data --rm -it ${var.vpn_image} ovpn_initpki"
-  }
-
-}*/
