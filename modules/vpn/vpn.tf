@@ -13,7 +13,7 @@ variable "ca_common_name" {
 
 variable "docker_preinstalled" {
   default = "1"
-  desc = "Set to empty string to hve docker be installed"
+  description = "Set to empty string to hve docker be installed"
 }
 
 variable "remote_script_dir" {
@@ -29,7 +29,7 @@ variable "script_folder" {
 
 variable "nopassword" {
   default = ""
-  desc = "Set this to anything if you want to disable passwords for the ca cert for openvpn"
+  description = "Set this to anything if you want to disable passwords for the ca cert for openvpn"
 }
 
 
