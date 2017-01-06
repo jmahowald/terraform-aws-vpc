@@ -1,7 +1,7 @@
 
 
 variable "inbound_security_group_id" {
-  desc = "This security group (like a private subnet) will be allowed access"
+  description = "This security group (like a private subnet) will be allowed access"
 }
 
 variable "subnet_ids" {
@@ -38,4 +38,14 @@ resource "aws_security_group_rule" "privatesubnet" {
   protocol = "tcp"
   security_group_id = "${aws_security_group.db.id}"
   source_security_group_id = "${var.inbound_security_group_id}"
+}
+
+
+resource "aws_security_group_rule" "privatesubnet_egress" {
+  type = "egress"
+  from_port = 3306
+  to_port = 3306
+  protocol = "tcp"
+  security_group_id = "${var.inbound_security_group_id}"
+  source_security_group_id = "${aws_security_group.db.id}"
 }
