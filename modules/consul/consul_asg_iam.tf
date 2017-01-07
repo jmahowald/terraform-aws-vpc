@@ -1,7 +1,7 @@
 
 
 resource "aws_iam_policy" "consul_policy" {
-    name = "consul_policy"
+    name = "consul.${var.zone_name}"
     path = "/"
     description = "My test policy"
     policy = <<EOF
@@ -24,7 +24,7 @@ EOF
 
 
 resource "aws_iam_role" "consul_role" {
-    name = "consul_role"
+    name = "consul.${var.zone_name}"
     path = "/"
     assume_role_policy = <<EOF
 {
@@ -50,6 +50,6 @@ resource "aws_iam_role_policy_attachment" "consul-attach" {
 }
 
 resource "aws_iam_instance_profile" "consul_profile" {
-    name = "consul_profile"
+    name = "consul.${var.zone_name}"
     roles = ["${aws_iam_role.consul_role.name}"]
 }

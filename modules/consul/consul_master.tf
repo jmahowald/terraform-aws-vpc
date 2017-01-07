@@ -1,6 +1,8 @@
 variable "key_name" {}
-variable "zone_id" {}
+variable "zone_name" {}
 variable "consul_fqdn" {}
+
+
 
 # TODO this should be multiple and we should be using a map to spread out the
 # masters
@@ -126,8 +128,12 @@ resource "aws_alb" "consul" {
 
 }
 
+
+data "aws_route53_zone" "selected" {
+    name="${var.zone_name}"
+}
 resource "aws_route53_record" "consul" {
-  zone_id = "${var.zone_id}"
+  zone_id = "${data.aws_route53_zone.selected.zone_id}"
   name = "${var.consul_fqdn}"
   type = "A"
   alias {
