@@ -8,6 +8,10 @@ variable "subnet_ids" {
   type = "list"
 }
 
+variable "subnet_group_name" {
+  default="rds-subnet"
+}
+
 variable "vpc_id" {}
 
 output "db_subnet_group_name" {
@@ -18,7 +22,7 @@ output "security_group_id" {
 }
 
 resource "aws_db_subnet_group" "default" {
-    name = "rds-subnet"
+    name = "${var.subnet_group_name}"
     description = "Database VPC private subnets"
     subnet_ids = [ "${var.subnet_ids}"]
 }
