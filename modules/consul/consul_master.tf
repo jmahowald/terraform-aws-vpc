@@ -39,7 +39,6 @@ variable "min_size" {
 }
 
 
-
 variable "max_size" {
   default ="5"
 }
@@ -51,6 +50,8 @@ variable "instance_type" {
 variable "consul_local_config" {
   default = "{\"skip_leave_on_interrupt\": true}" 
 }
+
+variable "environment" {}
 
 data "template_file" "start_consul_sh" {
   template = "${file("${path.module}/consul_server.sh.tpl")}"
@@ -93,8 +94,11 @@ data "aws_ami" "amazon" {
 
 # Autoscaling launch configuration
 resource "aws_launch_configuration" "cluster_launch_conf" {
+    lifecycle {
+        create_before_destroy = true
+    }
 
-    name = "consul-launch"
+    name_prefix = "consul"
     image_id = "${data.aws_ami.amazon.image_id}"
     # No public ip when instances are placed in private subnets. See notes
     # about creating an ELB to proxy public traffic into the cluster.
@@ -118,7 +122,7 @@ resource "aws_launch_configuration" "cluster_launch_conf" {
 
 # Create a new load balancer
 resource "aws_alb" "consul" {
-  name            = "consul-alb"
+  name            = "consul-alb-${var.environment}"
   internal        = true
   security_groups = ["${split(",",var.security_group_ids)}"]
   subnets         = ["${var.subnet_ids}"]
@@ -166,7 +170,7 @@ resource "aws_alb_listener" "front_end" {
 
 
 resource "aws_alb_target_group" "consul_server_http" {
-  name     = "tf-consul-alb-http"
+  name     = "tf-consul-${var.environment}-alb-http"
   port     = 8500
   protocol = "HTTP"
   vpc_id   = "${data.aws_subnet.selected.vpc_id}"
@@ -182,7 +186,11 @@ resource "aws_alb_target_group" "consul_server_http" {
 # Autoscaling group
 resource "aws_autoscaling_group" "consul_asg" {
 
-    name = "consul-AS"
+    lifecycle {
+        create_before_destroy = true
+    }
+
+    name = "consul-${var.environment}"
     launch_configuration = "${aws_launch_configuration.cluster_launch_conf.name}"
     min_size = "${var.min_size}"
     max_size = "${var.max_size}"
@@ -216,7 +224,7 @@ resource "aws_autoscaling_group" "consul_asg" {
 
 
 resource "aws_autoscaling_policy" "bat" {
-    name = "consul-policy"
+    name = "consul-${var.environment}-policy"
     adjustment_type = "ChangeInCapacity"
     cooldown = 300
     autoscaling_group_name = "${aws_autoscaling_group.consul_asg.name}"
