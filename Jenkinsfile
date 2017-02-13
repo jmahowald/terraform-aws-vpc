@@ -14,11 +14,10 @@ node {
             stage "test"
             sh "./make.sh -C tests test"
           }
-          catch {
+          catch(error) {
             emailext attachLog: true, body: "Build failed (see ${env.BUILD_URL}): ${error}", subject: "[JENKINS] ${env.JOB_NAME} failed", to: 'josh.mahowald@genesys.com'
-            # We don't want vpc instances lieing around'
+            //We don't want vpc instances lieing around'
             sh "./make.sh -C tests clean"
-
           }
         }
     }
