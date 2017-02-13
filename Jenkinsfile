@@ -15,7 +15,7 @@ node {
             sh "./make.sh -C tests test"
           }
           catch(error) {
-            emailext attachLog: true, body: "Build failed (see ${env.BUILD_URL}): ${error}", subject: "[JENKINS] ${env.JOB_NAME} failed", to: 'josh.mahowald@genesys.com'
+            // emailext attachLog: true, body: "Build failed (see ${env.BUILD_URL}): ${error}", subject: "[JENKINS] ${env.JOB_NAME} failed", to: 'josh.mahowald@genesys.com'
             //We don't want vpc instances lieing around'
             sh "./make.sh -C tests clean"
           }
