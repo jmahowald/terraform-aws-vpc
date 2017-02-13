@@ -14,7 +14,6 @@ node {
   // git credentialsId: 'gitlabkey', url: "git@git.genesyslab.com:infrastructure/terraform-aws-vpc.git"
    checkout scm
  
-  properties([[$class: 'GitLabConnectionProperty', gitLabConnection: 'gitlab']])
 
   
     wrap([$class: 'AnsiColorBuildWrapper'])    
