@@ -34,6 +34,12 @@ output "private_route_table_ids" {
 output "public_sg_id" {
   value = "${aws_security_group.public.id}"
 }
+
+output "all_sg_ids"  {
+  value= ["${aws_security_group.private.id}","${aws_security_group.public.id}"]
+}
+
+
 output "availabity_zones" {
   //Note that this is not necessarily the same as the avialability zones
   //used.  That is much harder to calculate (though I believe it can be done

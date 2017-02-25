@@ -1,7 +1,11 @@
 
 
-variable "inbound_security_group_id" {
+variable "inbound_security_group_ids" {
   description = "This security group (like a private subnet) will be allowed access"
+  type = "list"
+}
+variable "num_inbound_security_groups" {
+  description = "How many security groups are we allowing to access the DB"
 }
 
 variable "subnet_ids" {
@@ -35,21 +39,24 @@ resource "aws_security_group" "db" {
 }
 
 
-resource "aws_security_group_rule" "privatesubnet" {
+resource "aws_security_group_rule" "ingress" {
   type = "ingress"
   from_port = 3306
   to_port = 3306
   protocol = "tcp"
   security_group_id = "${aws_security_group.db.id}"
-  source_security_group_id = "${var.inbound_security_group_id}"
+  source_security_group_id = "${element(var.inbound_security_group_ids,count.index)}"
+  count = "${var.num_inbound_security_groups}"
 }
 
 
-resource "aws_security_group_rule" "privatesubnet_egress" {
+resource "aws_security_group_rule" "egress" {
   type = "egress"
   from_port = 3306
   to_port = 3306
   protocol = "tcp"
-  security_group_id = "${var.inbound_security_group_id}"
+  security_group_id = "${element(var.inbound_security_group_ids,count.index)}"
   source_security_group_id = "${aws_security_group.db.id}"
+  count = "${var.num_inbound_security_groups}"
+
 }
