@@ -12,7 +12,7 @@ variable "ca_common_name" {
 }
 
 variable "docker_preinstalled" {
-  default = "1"
+  default = ""
   description = "Set to empty string to hve docker be installed"
 }
 
