@@ -16,6 +16,10 @@ resource "aws_internet_gateway" "default" {
   vpc_id = "${aws_vpc.default.id}"
 }
 
+variable "aws_region" {}
 
+provider "aws" {
+  region = "${var.region}"
+}
 
 data "aws_availability_zones" "available" {}
