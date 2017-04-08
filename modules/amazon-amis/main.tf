@@ -43,20 +43,3 @@ output "image_user" {
 variable "version" {
     default = "7"
 }
-
-// variable "region" {}
-// variable "version" {}
-// variable "region" {}
-// variable "provider" {
-// 	default = "aws"
-// }
-
-// output "ami_id" {
-//     value = "${lookup(var.centos_amis, format("%s-%s-%s", var.version, var.provider, var.region))}"
-// }
-
-
-
-// output "test" {
-//    value = "foo"
-// }
