@@ -1,42 +1,12 @@
 /* NAT/jump server */
 
 
-
-
-variable "channel" {
-  default = "stable"
-}
-
-variable "virtualization_type" {
-  default = "hvm"
-}
-
-
-data "aws_ami" "amazon" {
-  most_recent = true
-   filter {
-    name = "owner-alias"
-    values = ["amazon"]
-  }
-  filter {
-    name   = "architecture"
-    values = ["x86_64"]
-  }
-  filter {
-    name = "virtualization-type"
-    values = ["${var.virtualization_type}"]
-  }
-  filter {
-    name   = "name"
-    values = ["amzn-ami-vpc-nat*"]
-  }
-}
 resource "aws_instance" "jump" {
   lifecycle {
     create_before_destroy = "true"
   }
 
-  ami = "${data.aws_ami.amazon.image_id}"
+  ami = "${var.ami}"
   count = "${var.bastion_server_count}"
   instance_type = "${var.instance_type}"
   subnet_id = "${element("${aws_subnet.public.*.id}", count.index)}"
@@ -63,7 +33,10 @@ resource "aws_instance" "jump" {
     Owner = "${var.owner}"
   }
   connection {
-    user =  "ec2-user"
+    user =  "${var.image_user}"
+    #    https://github.com/hashicorp/terraform/issues/2563
+    #    Shouldn't need to specify this but issue above
+    agent = "false"
     private_key = "${file(var.ssh_keypath)}"
   }
 
