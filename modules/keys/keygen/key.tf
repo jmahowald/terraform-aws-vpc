@@ -27,7 +27,7 @@ cat <<'EOP_SHELL'
 ${self.private_key_pem}
 EOP_SHELL
 ) > ${data.null_data_source.keyinfo.inputs.key_path}
-chmod 400 ${data.null_data_source.keyinfo.inputs.key_path}
+chmod 600 ${data.null_data_source.keyinfo.inputs.key_path}
 EOC_TERRAFORM
   }
 }
