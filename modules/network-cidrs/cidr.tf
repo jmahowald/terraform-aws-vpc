@@ -1,6 +1,7 @@
 
  variable "cidr_base" {
      default = "10.0.0.0/8"
+     description = "what's the initial ip range"
  } 
   
 
@@ -12,7 +13,7 @@ variable "region_number" {
 
 data "null_data_source" "vpc_base" {
     inputs  {
-        region = "${cidrsubnet(var.cidr_base,8, var.region_number * 100)}"io
+        region = "${cidrsubnet(var.cidr_base,8, var.region_number * 100)}"
     }
 }
 
