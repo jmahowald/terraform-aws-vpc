@@ -1,0 +1,79 @@
+---
+resource_types:
+- name: bitbucket-build-status
+  type: docker-image
+  source:
+    repository: ((docker-host)):5000/concourse/resources/bitbucket-build-status
+    tag: latest
+
+resources:
+- name: source-code
+  type: git
+  source:
+    uri: https://((bitbucket-host))/scm/((git-stash-repository-slug))
+    branch: ((git-branch))
+    username: ((bitbucket-username))
+    password: ((bitbucket-password))
+
+- name: build-status
+  type: bitbucket-build-status
+  source:
+    base_url: https://((bitbucket-host))
+    username: ((bitbucket-username))
+    password: ((bitbucket-password))
+
+- name: container-image
+  check_every: 1h
+  type: docker-image
+  source:
+    repository: ((docker-host)):5001/c42/((container-name))/((pr-slug))
+    username: ((docker-username))
+    password: ((docker-password))
+
+
+jobs:
+
+- name: build
+  public: true
+  plan:
+  - get: source
+    resource: source-code
+    trigger: true
+  - put: build-status
+    params:
+      git_dir: source
+      state: INPROGRESS
+  - put: container-image
+    params:
+      build: source/
+      cache: true
+      cache_tag: latest
+      tag_as_latest: true
+  on_success:
+    put: build-status
+    params:
+      git_dir: source
+      state: SUCCESSFUL
+
+- name: notify
+  plan:
+  - get: build-status
+    trigger: true
+    passed: [ build ]
+  - get: source
+    resource: source-code
+    passed: [ build ]
+  - task: prepare-message
+    config:
+      platform: linux
+      image_resource:
+        type: docker-image
+        source: { repository: "((docker-host)):5000/concourse/images/buildroot", tag: "latest" }
+      inputs:
+      - name: build-status
+      run:
+        path: sh
+        args:
+         - -c
+         - |
+           cat build-status/status.json
