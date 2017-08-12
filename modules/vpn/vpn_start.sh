@@ -3,9 +3,8 @@
 if [ -n "$DOCKER_INSTALLED"  ]; then
     echo "Docker already setup"
 else
-      curl -sSL https://get.docker.com/ | sudo sh
-      sudo systemctl enable docker.service
-      sudo service docker start
+    sudo yum install docker -y
+    sudo service docker start
 fi
 
 

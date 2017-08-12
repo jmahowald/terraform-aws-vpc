@@ -1,0 +1,16 @@
+PIPELINE_NAME=terraform-aws-vpc
+GIT_BRANCH=master
+CONTAINER_NAME=terraform-aws-vpc
+CONTAINER_NAMESPACE=c42
+
+CONCOURSE_TARGET=dev
+CONCOURSE_URL=http://cd-docker01.corp.code42.com:443
+CONCOURSE_TEAM=cicd
+CONCOURSE_USER=ciuser
+CONCOURSE_PASSWORD=theciuserpasswordisweak
+BITBUCKET_HOST=stash.corp.code42.com
+BITBUCKET_USER=jenkins
+BITBUCKET_PASSWORD=code42pw
+DOCKER_REG_HOST=artifactory.corp.code42.com
+DOCKER_REG_USER=jenkins-cd
+DOCKER_REG_PASSWORD=jenkinsdocker42

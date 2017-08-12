@@ -1,6 +1,9 @@
-/* NAT/jump server */
+/*
+ *  NAT/jump server 
+ */
 
-
+variable "ami" { }
+variable "image_user" {}
 resource "aws_instance" "jump" {
   lifecycle {
     create_before_destroy = "true"
