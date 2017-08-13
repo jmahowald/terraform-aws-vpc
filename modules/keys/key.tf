@@ -1,10 +1,8 @@
 
 variable "key_name" {}
 variable "public_key" {}
-variable "region" {}
-provider "aws" {
-  region = "${var.region}"
-}
+// provider "aws" {
+// }
 
 /* and our deployment keys */
 resource "aws_key_pair" "deployer" {
